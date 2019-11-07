@@ -1,0 +1,111 @@
+version: 2
+aliases:
+  - &sonar-scan
+    command: |
+      mvn sonar:sonar -s /tools/m2/settings.xml \
+        -Dsonar.projectKey=${CIRCLE_PROJECT_REPONAME} \
+        -Dsonar.organization=enturas-github \
+        -Dsonar.projectName=${CIRCLE_PROJECT_REPONAME} \
+        -Dsonar.host.url=https://sonarcloud.io \
+        -Dsonar.login=${ENTUR_SONAR_PASSWORD}
+
+jobs:
+  test:
+    docker:
+      - image: eu.gcr.io/carbon-1287/circleci-toolbox-image-java11
+        auth:
+          username: _json_key
+          password: $GCLOUD_SERVICE_KEY
+    environment:
+      MAVEN_OPTS: -Xmx3G
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - cache-dependencies-{{ checksum "pom.xml" }}-deploy
+            - cache-dependencies-{{ checksum "pom.xml" }}
+            - cache-dependencies-static
+      - run: mvn dependency:go-offline -s /tools/m2/settings.xml
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: cache-dependencies-{{ checksum "pom.xml" }}
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: cache-dependencies-static
+      # Cannot use -o because of snapshot dependencies. Using deploy &  -Dmaven.deploy.skip=true to download ALL necessary dependencies
+      - run: mvn deploy -s /tools/m2/settings.xml  -Dmaven.deploy.skip=true
+      - persist_to_workspace:
+          root: ../
+          paths:
+            - project
+            - .m2
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/junit/
+            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+  deploy-artifactory:
+    docker:
+      - image: eu.gcr.io/carbon-1287/circleci-toolbox-image
+        auth:
+          username: _json_key
+          password: $GCLOUD_SERVICE_KEY
+    environment:
+      MAVEN_OPTS: -Xmx3G
+    steps:
+      - attach_workspace:
+          at: ../
+      - run: mvn deploy -s /tools/m2/settings.xml -DskipTests -Dspotless.check.skip=true
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: cache-dependencies-{{ checksum "pom.xml" }}-deploy
+
+  sonar:
+    docker:
+      - image: eu.gcr.io/carbon-1287/circleci-toolbox-image-java11
+        auth:
+          username: _json_key
+          password: $GCLOUD_SERVICE_KEY
+    environment:
+      MAVEN_OPTS: -Xmx3G
+    steps:
+      #      - checkout
+      - attach_workspace:
+          at: ../
+      - run: *sonar-scan
+
+workflows:
+  version: 2
+  nightly-sonar-analysis:
+    triggers:
+      - schedule:
+          cron: "0 2 * * *"
+          filters:
+            branches:
+              only: master
+    jobs:
+      - test:
+          context: org-carbon
+      - sonar:
+          context: org-carbon
+          requires:
+            - test
+  build_test_deploy:
+    jobs:
+      - test:
+          context: org-carbon
+      - deploy-artifactory:
+          context: org-carbon
+          requires:
+            - test
+          filters:
+            branches:
+              only: master

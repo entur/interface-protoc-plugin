@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package xxx.test;
+
+option java_multiple_files = true;
+option java_package = "no.entur.abt.proto.plugin.test";
+
+import "xsd.proto";
+
+message TopLevel {
+  string string_val = 1;
+  int64 int64_val = 2;
+  repeated string repeated_string_val = 3;
+  bool bool_val = 4;
+  NoBaseType object_val = 10;
+  repeated NoBaseType repeated_object_val = 11;
+}
+
+message MidLevel {
+  option (xsd.base_type) = "TopLevel";
+  string string_val = 1;
+  int64 int64_val = 2;
+  repeated string repeated_string_val = 3;
+  bool bool_val = 4;
+  NoBaseType object_val = 10;
+  repeated NoBaseType repeated_object_val = 11;
+
+
+
+}
+
+message BottomLevel {
+  option (xsd.base_type) = "MidLevel";
+  string string_val = 1;
+  int64 int64_val = 2;
+  repeated string repeated_string_val = 3;
+  bool bool_val = 4;
+  NoBaseType object_val = 10;
+  repeated NoBaseType repeated_object_val = 11;
+
+
+
+}
+
+message NoBaseType {
+  string string_val = 1;
+}
