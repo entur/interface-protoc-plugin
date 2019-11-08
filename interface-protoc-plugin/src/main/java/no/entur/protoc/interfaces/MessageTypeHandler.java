@@ -1,7 +1,5 @@
 package no.entur.protoc.interfaces;
 
-import static com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,24 +95,23 @@ public class MessageTypeHandler {
 			if (field.getLabel() == DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED) {
 
 				TypeName typeArgument;
-				if (field.getType() == TYPE_MESSAGE) {
-					typeArgument = WildcardTypeName.subtypeOf(type);
-				} else {
+				if (field.getType() == DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING) {
 					typeArgument = type.box();
+				} else {
+					typeArgument = WildcardTypeName.subtypeOf(type.box());
 				}
-
 				ParameterizedTypeName repeatedType = ParameterizedTypeName.get(ClassName.get(Iterable.class), typeArgument);
 
 				MethodSpec getMethod = MethodSpec.methodBuilder("addAll" + fieldAsCamelCase)
 						.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-						.addParameter(repeatedType, field.getName() + "values")
+						.addParameter(repeatedType, "values")
 						.returns(builderInterfaceTypeName)
 						.build();
 				methods.add(getMethod);
 			} else {
 				MethodSpec setMethod = MethodSpec.methodBuilder("set" + fieldAsCamelCase)
 						.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-						.addParameter(type, field.getName())
+						.addParameter(type, "value")
 						.returns(builderInterfaceTypeName)
 						.build();
 				methods.add(setMethod);
@@ -217,7 +214,6 @@ public class MessageTypeHandler {
 			return TypeName.BOOLEAN;
 		case TYPE_STRING:
 			return ClassName.get(String.class);
-		case TYPE_GROUP:
 
 		case TYPE_BYTES:
 			return ClassName.get(ByteString.class);
@@ -225,6 +221,9 @@ public class MessageTypeHandler {
 		case TYPE_MESSAGE:
 		case TYPE_ENUM:
 			return getClassNameFromTypeName(field.getTypeName());
+
+		case TYPE_GROUP:
+// Groups not supported in proto3
 		}
 
 		throw new IllegalArgumentException("Unable to map unknown type: " + field.getType());

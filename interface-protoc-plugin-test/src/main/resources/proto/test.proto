@@ -8,40 +8,152 @@ option java_package = "no.entur.protoc.interfaces.test";
 import "xsd.proto";
 
 message TopLevel {
-  string string_val = 1;
-  int64 int64_val = 2;
-  repeated string repeated_string_val = 3;
-  bool bool_val = 4;
-  NoBaseType object_val = 10;
-  repeated NoBaseType repeated_object_val = 11;
+ // Add every supported message type to interface type to make sure code generation supports all
+  double top_level_double_val = 1;
+  float top_level_float_val = 2;
+  int64 top_level_int64_val = 3;
+  uint64 top_level_uint64_val = 4;
+  int32 top_level_int32_val = 5;
+  fixed64 top_level_fixed64_val = 6;
+  fixed32 top_level_fixed32_val = 7;
+  bool top_level_bool_val = 8;
+  string top_level_string_val = 9;
+  bytes top_level_bytes_val = 10;
+  sfixed32 top_level_sfixed32_val = 11;
+  sfixed64 top_level_sfixed64_val = 12;
+  sint32 top_level_sint32_val = 13;
+  sint64 top_level_sint64_val = 14;
+  SimpleType top_level_message_val = 15;
+  EnumType top_level_enum_val = 16;
+
+  oneof TopLevelOneOf {
+    string top_level_one_of_string_val= 51;
+    double top_level_one_of_double_val= 52;
+  }
+
+  repeated double top_level_repeated_double_val = 101;
+  repeated float top_level_repeated_float_val = 102;
+  repeated int64 top_level_repeated_int64_val = 103;
+  repeated uint64 top_level_repeated_uint64_val = 104;
+  repeated int32 top_level_repeated_int32_val = 105;
+  repeated fixed64 top_level_repeated_fixed64_val = 106;
+  repeated fixed32 top_level_repeated_fixed32_val = 107;
+  repeated bool top_level_repeated_bool_val = 108;
+  repeated string top_level_repeated_string_val = 109;
+  repeated bytes top_level_repeated_bytes_val = 110;
+  repeated sfixed32 top_level_repeated_sfixed32_val = 111;
+  repeated sfixed64 top_level_repeated_sfixed64_val = 112;
+  repeated sint32 top_level_repeated_sint32_val = 113;
+  repeated sint64 top_level_repeated_sint64_val = 114;
+  repeated SimpleType top_level_repeated_message_val = 115;
+  repeated EnumType top_level_repeated_enum_val = 116;
+
+  // TODO group
+
 }
 
 message MidLevel {
+
   option (xsd.base_type) = "TopLevel";
-  string string_val = 1;
-  int64 int64_val = 2;
-  repeated string repeated_string_val = 3;
-  bool bool_val = 4;
-  NoBaseType object_val = 10;
-  repeated NoBaseType repeated_object_val = 11;
+
+  double top_level_double_val = 1;
+  float top_level_float_val = 2;
+  int64 top_level_int64_val = 3;
+  uint64 top_level_uint64_val = 4;
+  int32 top_level_int32_val = 5;
+  fixed64 top_level_fixed64_val = 6;
+  fixed32 top_level_fixed32_val = 7;
+  bool top_level_bool_val = 8;
+  string top_level_string_val = 9;
+  bytes top_level_bytes_val = 10;
+  sfixed32 top_level_sfixed32_val = 11;
+  sfixed64 top_level_sfixed64_val = 12;
+  sint32 top_level_sint32_val = 13;
+  sint64 top_level_sint64_val = 14;
+  SimpleType top_level_message_val = 15;
+  EnumType top_level_enum_val = 16;
+
+  oneof TopLevelOneOf {
+    string top_level_one_of_string_val= 50;
+    double top_level_one_of_double_val= 51;
+  }
+
+  repeated double top_level_repeated_double_val = 101;
+  repeated float top_level_repeated_float_val = 102;
+  repeated int64 top_level_repeated_int64_val = 103;
+  repeated uint64 top_level_repeated_uint64_val = 104;
+  repeated int32 top_level_repeated_int32_val = 105;
+  repeated fixed64 top_level_repeated_fixed64_val = 106;
+  repeated fixed32 top_level_repeated_fixed32_val = 107;
+  repeated bool top_level_repeated_bool_val = 108;
+  repeated string top_level_repeated_string_val = 109;
+  repeated bytes top_level_repeated_bytes_val = 110;
+  repeated sfixed32 top_level_repeated_sfixed32_val = 111;
+  repeated sfixed64 top_level_repeated_sfixed64_val = 112;
+  repeated sint32 top_level_repeated_sint32_val = 113;
+  repeated sint64 top_level_repeated_sint64_val = 114;
+  repeated SimpleType top_level_repeated_message_val = 115;
+  repeated EnumType top_level_repeated_enum_val = 116;
 
 
+   string mid_level_string_val = 1000;
 
 }
 
 message BottomLevel {
+
   option (xsd.base_type) = "MidLevel";
-  string string_val = 1;
-  int64 int64_val = 2;
-  repeated string repeated_string_val = 3;
-  bool bool_val = 4;
-  NoBaseType object_val = 10;
-  repeated NoBaseType repeated_object_val = 11;
 
+  double top_level_double_val = 1;
+  float top_level_float_val = 2;
+  int64 top_level_int64_val = 3;
+  uint64 top_level_uint64_val = 4;
+  int32 top_level_int32_val = 5;
+  fixed64 top_level_fixed64_val = 6;
+  fixed32 top_level_fixed32_val = 7;
+  bool top_level_bool_val = 8;
+  string top_level_string_val = 9;
+  bytes top_level_bytes_val = 10;
+  sfixed32 top_level_sfixed32_val = 11;
+  sfixed64 top_level_sfixed64_val = 12;
+  sint32 top_level_sint32_val = 13;
+  sint64 top_level_sint64_val = 14;
+  SimpleType top_level_message_val = 15;
+  EnumType top_level_enum_val = 16;
 
+  oneof TopLevelOneOf {
+    string top_level_one_of_string_val= 50;
+    double top_level_one_of_double_val= 51;
+  }
+
+  repeated double top_level_repeated_double_val = 101;
+  repeated float top_level_repeated_float_val = 102;
+  repeated int64 top_level_repeated_int64_val = 103;
+  repeated uint64 top_level_repeated_uint64_val = 104;
+  repeated int32 top_level_repeated_int32_val = 105;
+  repeated fixed64 top_level_repeated_fixed64_val = 106;
+  repeated fixed32 top_level_repeated_fixed32_val = 107;
+  repeated bool top_level_repeated_bool_val = 108;
+  repeated string top_level_repeated_string_val = 109;
+  repeated bytes top_level_repeated_bytes_val = 110;
+  repeated sfixed32 top_level_repeated_sfixed32_val = 111;
+  repeated sfixed64 top_level_repeated_sfixed64_val = 112;
+  repeated sint32 top_level_repeated_sint32_val = 113;
+  repeated sint64 top_level_repeated_sint64_val = 114;
+  repeated SimpleType top_level_repeated_message_val = 115;
+  repeated EnumType top_level_repeated_enum_val = 116;
+
+   string mid_level_string_val = 1000;
+
+   string bottom_level_string_val = 10000;
 
 }
 
-message NoBaseType {
-  string string_val = 1;
+message SimpleType {
+  string simple_type_string_val = 1;
+}
+
+enum EnumType {
+   ENUM_VALUE_1 = 0;
+   ENUM_VALUE_2 = 1;
 }
