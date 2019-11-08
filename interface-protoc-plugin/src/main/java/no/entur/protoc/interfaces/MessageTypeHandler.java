@@ -101,8 +101,8 @@ public class MessageTypeHandler {
 	private void createBuilderInterface() {
 		List<MethodSpec> methods = new ArrayList<>();
 
-		String interfaceName = getBuilderInterfaceName(messageTypeDesc);
-		TypeName builderInterfaceTypeName = ClassName.get(javaPackageName, interfaceName, new String[0]);
+		String builderInterfaceName = getBuilderInterfaceName(messageTypeDesc);
+		TypeName builderInterfaceTypeName = ClassName.get(javaPackageName, builderInterfaceName, new String[0]);
 
 		for (DescriptorProtos.FieldDescriptorProto field : messageTypeDesc.getFieldList()) {
 
@@ -134,10 +134,14 @@ public class MessageTypeHandler {
 			}
 		}
 
+		ClassName interfaceClassName = ClassName.get(javaPackageName, getInterfaceName(), new String[0]);
+		MethodSpec buildMethod = MethodSpec.methodBuilder("build").addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).returns(interfaceClassName).build();
+		methods.add(buildMethod);
+
 		String baseTypeBuilderInterfaceName = getBuilderInterfaceName(baseType);
 
 		TypeName baseType = getBaseType(baseTypeBuilderInterfaceName);
-		writeInterface(interfaceName, methods, baseType);
+		writeInterface(builderInterfaceName, methods, baseType);
 	}
 
 	private TypeName getBaseType(String baseTypeInterfaceName) {
