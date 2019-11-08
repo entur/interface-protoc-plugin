@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.lang.model.element.Modifier;
 
+import xsd.Xsd;
+
 import com.google.protobuf.ByteString;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.compiler.PluginProtos;
@@ -19,8 +21,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
-
-import xsd.Xsd;
 
 /**
  * Generate interfaces for a proto message and create CodeGeneratorResponse.File to add it to generated java class.
