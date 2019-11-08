@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
+        <java.version>1.8</java.version>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
         <proto.version>3.9.0</proto.version>
         <spotless.version>1.23.1</spotless.version>
