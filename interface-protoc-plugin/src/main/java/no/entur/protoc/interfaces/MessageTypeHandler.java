@@ -6,10 +6,11 @@ import java.util.List;
 
 import javax.lang.model.element.Modifier;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.protobuf.ByteString;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.compiler.PluginProtos;
-import com.salesforce.jprotoc.ProtoTypeMap;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -25,8 +26,8 @@ import xsd.Xsd;
  */
 public class MessageTypeHandler {
 	private final static String JAVA_EXTENSION = ".java";
-	private final String targetFolder;
-	private final ProtoTypeMap protoTypeMap;
+
+	private final InterfaceProtocContext context;
 	private final DescriptorProtos.DescriptorProto messageTypeDesc;
 	private final com.google.protobuf.DescriptorProtos.FileDescriptorProto fileDesc;
 
@@ -37,10 +38,10 @@ public class MessageTypeHandler {
 
 	private String builderInterfaceFullName;
 
-	public MessageTypeHandler(String targetFolder, ProtoTypeMap protoTypeMap, DescriptorProtos.DescriptorProto messageTypeDesc,
-			DescriptorProtos.FileDescriptorProto fileDesc) {
-		this.targetFolder = targetFolder;
-		this.protoTypeMap = protoTypeMap;
+	private String baseType;
+
+	public MessageTypeHandler(InterfaceProtocContext context, DescriptorProtos.DescriptorProto messageTypeDesc, DescriptorProtos.FileDescriptorProto fileDesc) {
+		this.context = context;
 		this.messageTypeDesc = messageTypeDesc;
 		this.fileDesc = fileDesc;
 
@@ -52,33 +53,49 @@ public class MessageTypeHandler {
 
 		interfaceFullName = javaPackageName + "." + getInterfaceName();
 		builderInterfaceFullName = javaPackageName + "." + getBuilderInterfaceName(messageTypeDesc);
+		baseType = StringUtils.trimToNull(messageTypeDesc.getOptions().getExtension(Xsd.baseType));
+	}
+
+	private boolean isBaseType() {
+		return context.baseTypes.contains(messageTypeDesc.getName());
+	}
+
+	private boolean hasBaseType() {
+		return !StringUtils.isEmpty(baseType);
 	}
 
 	public List<PluginProtos.CodeGeneratorResponse.File> process() {
 		init();
-		List<PluginProtos.CodeGeneratorResponse.File> files = new ArrayList<>();
 
-		createInterface();
+		if (isBaseType()) {
+			createInterface();
+			createBuilderInterface();
+			return createCodeGeneratorResponseFiles(interfaceFullName, builderInterfaceFullName);
+		} else if (hasBaseType()) {
+			String baseTypeJavaPackageName = getJavaPackageName(fileDesc.getPackage(), baseType);
+			String baseTypeInterfaceName = baseTypeJavaPackageName + "." + getInterfaceName(baseType);
+			String baseTypeBuilderInterfaceName = baseTypeJavaPackageName + "." + getBuilderInterfaceName(baseType);
+			return createCodeGeneratorResponseFiles(baseTypeInterfaceName, baseTypeBuilderInterfaceName);
+		}
+		return new ArrayList<>();
+	}
+
+	private List<PluginProtos.CodeGeneratorResponse.File> createCodeGeneratorResponseFiles(String messageImplementsInterface,
+			String builderImplementsInterface) {
+		List<PluginProtos.CodeGeneratorResponse.File> files = new ArrayList<>();
 		files.add(PluginProtos.CodeGeneratorResponse.File.newBuilder()
 				.setName(getCodeGeneratorFileName())
 				.setInsertionPoint("message_implements:" + protoFullPath)
-				.setContent(interfaceFullName + ",")
+				.setContent(messageImplementsInterface + ",")
 				.build());
 
-		createBuilderInterface();
 		files.add(PluginProtos.CodeGeneratorResponse.File.newBuilder()
 				.setName(getCodeGeneratorFileName())
 				.setInsertionPoint("builder_implements:" + protoFullPath)
-				.setContent(builderInterfaceFullName + ",")
+				.setContent(builderImplementsInterface + ",")
 				.build());
 
 		return files;
-	}
-
-	private String getBaseType(DescriptorProtos.DescriptorProto messageTypeDesc) {
-
-		String baseType = messageTypeDesc.getOptions().getExtension(Xsd.baseType);
-		return baseType;
 	}
 
 	private void createBuilderInterface() {
@@ -93,7 +110,6 @@ public class MessageTypeHandler {
 			TypeName type = mapType(field);
 
 			if (field.getLabel() == DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED) {
-
 				TypeName typeArgument;
 				if (field.getType() == DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING) {
 					typeArgument = type.box();
@@ -118,24 +134,23 @@ public class MessageTypeHandler {
 			}
 		}
 
-		String baseTypeMessageName = getBaseType(messageTypeDesc);
-		String baseTypeBuilderInterfaceName = getBuilderInterfaceName(baseTypeMessageName);
+		String baseTypeBuilderInterfaceName = getBuilderInterfaceName(baseType);
 
-		TypeName baseType = getBaseType(baseTypeMessageName, baseTypeBuilderInterfaceName);
+		TypeName baseType = getBaseType(baseTypeBuilderInterfaceName);
 		writeInterface(interfaceName, methods, baseType);
 	}
 
-	private TypeName getBaseType(String baseTypeMessageName, String baseTypeBuilderInterfaceName) {
-		TypeName baseType = null;
-		if (baseTypeMessageName != null) {
+	private TypeName getBaseType(String baseTypeInterfaceName) {
+		TypeName baseTypeName = null;
+		if (baseType != null) {
 			// TODO base type must include package name
-			String baseTypeJavaPackageName = getJavaPackageName(fileDesc.getPackage(), baseTypeMessageName);
+			String baseTypeJavaPackageName = getJavaPackageName(fileDesc.getPackage(), baseType);
 			if (baseTypeJavaPackageName != null) {
 
-				baseType = ClassName.get(baseTypeJavaPackageName, baseTypeBuilderInterfaceName, new String[0]);
+				baseTypeName = ClassName.get(baseTypeJavaPackageName, baseTypeInterfaceName, new String[0]);
 			}
 		}
-		return baseType;
+		return baseTypeName;
 	}
 
 	private void createInterface() {
@@ -163,9 +178,8 @@ public class MessageTypeHandler {
 		}
 		String interfaceName = getInterfaceName();
 
-		String baseTypeMessageName = getBaseType(messageTypeDesc);
-		String baseTypeInterfaceName = getInterfaceName(baseTypeMessageName);
-		TypeName baseType = getBaseType(baseTypeMessageName, baseTypeInterfaceName);
+		String baseTypeInterfaceName = getInterfaceName(baseType);
+		TypeName baseType = getBaseType(baseTypeInterfaceName);
 
 		writeInterface(interfaceName, methods, baseType);
 	}
@@ -180,7 +194,7 @@ public class MessageTypeHandler {
 
 		JavaFile javaFile = JavaFile.builder(javaPackageName, typeSpec.build()).build();
 		try {
-			javaFile.writeTo(new File(targetFolder));
+			javaFile.writeTo(new File(context.targetFolder));
 		} catch (Exception e) {
 			log(e.getMessage());
 
@@ -242,7 +256,7 @@ public class MessageTypeHandler {
 	}
 
 	private String getJavaPackageName(String fullTypeName) {
-		String javaTypeName = protoTypeMap.toJavaTypeName(fullTypeName);
+		String javaTypeName = context.protoTypeMap.toJavaTypeName(fullTypeName);
 
 		if (javaTypeName != null) {
 			String[] parts = javaTypeName.split("\\.");
