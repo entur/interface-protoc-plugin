@@ -48,8 +48,6 @@ message TopLevel {
   repeated SimpleType top_level_repeated_message_val = 115;
   repeated EnumType top_level_repeated_enum_val = 116;
 
-  // TODO group
-
 }
 
 message MidLevel {
