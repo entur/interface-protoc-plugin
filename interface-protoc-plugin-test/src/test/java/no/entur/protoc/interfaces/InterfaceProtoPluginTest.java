@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 
 import com.google.protobuf.ByteString;
 
-import no.entur.protoc.interfaces.test.BottomLevel;
-import no.entur.protoc.interfaces.test.EnumType;
-import no.entur.protoc.interfaces.test.MidLevelI;
-import no.entur.protoc.interfaces.test.MidLevelIBuilder;
-import no.entur.protoc.interfaces.test.SimpleType;
-import no.entur.protoc.interfaces.test.TopLevelI;
-import no.entur.protoc.interfaces.test.TopLevelIBuilder;
+import no.entur.protoc.interfaces.package1.BottomLevel;
+import no.entur.protoc.interfaces.package1.MidLevelI;
+import no.entur.protoc.interfaces.package1.MidLevelIBuilder;
+import no.entur.protoc.interfaces.package2.EnumType;
+import no.entur.protoc.interfaces.package2.SimpleType;
+import no.entur.protoc.interfaces.package2.TopLevelI;
+import no.entur.protoc.interfaces.package2.TopLevelIBuilder;
 
 public class InterfaceProtoPluginTest {
 

@@ -8,6 +8,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.compiler.PluginProtos;
 import com.salesforce.jprotoc.GeneratorException;
@@ -53,13 +55,23 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 	}
 
 	private Set<String> getAllBaseTypes(PluginProtos.CodeGeneratorRequest request) {
-		return request.getProtoFileList()
-				.stream()
-				.map(DescriptorProtos.FileDescriptorProto::getMessageTypeList)
-				.flatMap(List::stream)
-				.map(messageTypeDesc -> messageTypeDesc.getOptions().getExtension(Xsd.baseType))
-				.filter(Objects::nonNull)
-				.collect(Collectors.toSet());
+		return request.getProtoFileList().stream().map(this::getAllBaseTypesForFile).flatMap(Function.identity()).collect(Collectors.toSet());
+	}
+
+	private Stream<String> getAllBaseTypesForFile(DescriptorProtos.FileDescriptorProto fileDesc) {
+		String packageName = fileDesc.getPackage();
+		return fileDesc.getMessageTypeList().stream().map(messageTypeDesc -> getFullBaseTypeName(packageName, messageTypeDesc)).filter(Objects::nonNull);
+	}
+
+	private String getFullBaseTypeName(String packageName, DescriptorProtos.DescriptorProto messageTypeDesc) {
+
+		String optionVal = messageTypeDesc.getOptions().getExtension(Xsd.baseType);
+
+		if (!StringUtils.isEmpty(optionVal) && !optionVal.contains(".")) {
+			// Optional value is a relative references within same file/package. Append package name from current file
+			return packageName + "." + optionVal;
+		}
+		return optionVal;
 	}
 
 	private Stream<PluginProtos.CodeGeneratorResponse.File> handleProtoFile(final DescriptorProtos.FileDescriptorProto fileDesc) {

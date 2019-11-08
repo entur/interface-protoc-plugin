@@ -44,7 +44,6 @@ public class MessageTypeHandler {
 		this.context = context;
 		this.messageTypeDesc = messageTypeDesc;
 		this.fileDesc = fileDesc;
-
 	}
 
 	private void init() {
@@ -53,7 +52,15 @@ public class MessageTypeHandler {
 
 		interfaceFullName = javaPackageName + "." + getInterfaceName();
 		builderInterfaceFullName = javaPackageName + "." + getBuilderInterfaceName(messageTypeDesc);
-		baseTypeFullPath = "." + StringUtils.trimToNull(messageTypeDesc.getOptions().getExtension(Xsd.baseType));
+
+		String baseTypeOptionalsVal = messageTypeDesc.getOptions().getExtension(Xsd.baseType);
+
+		if (!StringUtils.isEmpty(baseTypeOptionalsVal) && !baseTypeOptionalsVal.contains(".")) {
+			// Optional value is a relative references within same file/package. Append package name from current file
+			baseTypeOptionalsVal = fileDesc.getPackage() + "." + baseTypeOptionalsVal;
+		}
+
+		baseTypeFullPath = "." + baseTypeOptionalsVal;
 
 	}
 
