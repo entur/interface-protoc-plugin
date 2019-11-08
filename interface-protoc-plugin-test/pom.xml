@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>interface-protoc-plugin-parent</artifactId>
-        <groupId>no.entur.abt</groupId>
+        <groupId>no.entur</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -90,7 +90,7 @@
                                     <groupId>${groupId}</groupId>
                                     <artifactId>interface-protoc-plugin</artifactId>
                                     <version>${project.version}</version>
-                                    <mainClass>no.entur.abt.protoc.InterfaceProtocPlugin</mainClass>
+                                    <mainClass>no.entur.protoc.interfaces.InterfaceProtocPlugin</mainClass>
                                     <args>${generated.interface.directory}</args>
                                 </protocPlugin>
                             </protocPlugins>

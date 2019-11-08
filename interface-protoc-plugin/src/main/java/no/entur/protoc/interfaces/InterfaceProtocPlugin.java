@@ -1,4 +1,4 @@
-package no.entur.abt.protoc;
+package no.entur.protoc.interfaces;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,12 +6,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import xsd.Xsd;
-
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.compiler.PluginProtos;
 import com.salesforce.jprotoc.GeneratorException;
 import com.salesforce.jprotoc.ProtoTypeMap;
+
+import xsd.Xsd;
 
 public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 

@@ -1,11 +1,11 @@
-package no.entur.abt.protoc.test;
+package no.entur.protoc.interfaces;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import no.entur.abt.proto.plugin.test.BottomLevel;
-import no.entur.abt.proto.plugin.test.TopLevelI;
-import no.entur.abt.proto.plugin.test.TopLevelIBuilder;
+import no.entur.protoc.interfaces.test.BottomLevel;
+import no.entur.protoc.interfaces.test.TopLevelI;
+import no.entur.protoc.interfaces.test.TopLevelIBuilder;
 
 public class InterfaceProtoPluginTest {
 

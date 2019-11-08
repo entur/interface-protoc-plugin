@@ -3,7 +3,7 @@ syntax = "proto3";
 package xxx.test;
 
 option java_multiple_files = true;
-option java_package = "no.entur.abt.proto.plugin.test";
+option java_package = "no.entur.protoc.interfaces.test";
 
 import "xsd.proto";
 
