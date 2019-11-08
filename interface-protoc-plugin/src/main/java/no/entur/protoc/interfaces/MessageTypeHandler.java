@@ -54,6 +54,7 @@ public class MessageTypeHandler {
 		interfaceFullName = javaPackageName + "." + getInterfaceName();
 		builderInterfaceFullName = javaPackageName + "." + getBuilderInterfaceName(messageTypeDesc);
 		baseType = StringUtils.trimToNull(messageTypeDesc.getOptions().getExtension(Xsd.baseType));
+
 	}
 
 	private boolean isBaseType() {
@@ -61,7 +62,7 @@ public class MessageTypeHandler {
 	}
 
 	private boolean hasBaseType() {
-		return !StringUtils.isEmpty(baseType);
+		return !StringUtils.isEmpty(baseType) && !StringUtils.isEmpty(getBaseTypeJavaPackageName());
 	}
 
 	public List<PluginProtos.CodeGeneratorResponse.File> process() {
@@ -72,9 +73,8 @@ public class MessageTypeHandler {
 			createBuilderInterface();
 			return createCodeGeneratorResponseFiles(interfaceFullName, builderInterfaceFullName);
 		} else if (hasBaseType()) {
-			String baseTypeJavaPackageName = getJavaPackageName(fileDesc.getPackage(), baseType);
-			String baseTypeInterfaceName = baseTypeJavaPackageName + "." + getInterfaceName(baseType);
-			String baseTypeBuilderInterfaceName = baseTypeJavaPackageName + "." + getBuilderInterfaceName(baseType);
+			String baseTypeInterfaceName = getBaseTypeJavaPackageName() + "." + getInterfaceName(baseType);
+			String baseTypeBuilderInterfaceName = getBaseTypeJavaPackageName() + "." + getBuilderInterfaceName(baseType);
 			return createCodeGeneratorResponseFiles(baseTypeInterfaceName, baseTypeBuilderInterfaceName);
 		}
 		return new ArrayList<>();
@@ -146,9 +146,9 @@ public class MessageTypeHandler {
 
 	private TypeName getBaseType(String baseTypeInterfaceName) {
 		TypeName baseTypeName = null;
-		if (baseType != null) {
+		if (hasBaseType()) {
 			// TODO base type must include package name
-			String baseTypeJavaPackageName = getJavaPackageName(fileDesc.getPackage(), baseType);
+			String baseTypeJavaPackageName = getBaseTypeJavaPackageName();
 			if (baseTypeJavaPackageName != null) {
 
 				baseTypeName = ClassName.get(baseTypeJavaPackageName, baseTypeInterfaceName, new String[0]);
@@ -318,4 +318,9 @@ public class MessageTypeHandler {
 		System.out.println(msg
 				+ "                                                                                                                                                                              ");
 	}
+
+	private String getBaseTypeJavaPackageName() {
+		return getJavaPackageName(fileDesc.getPackage(), baseType);
+	}
+
 }
