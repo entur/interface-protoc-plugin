@@ -38,7 +38,7 @@ public class MessageTypeHandler {
 
 	private String builderInterfaceFullName;
 
-	private String baseType;
+	private String baseTypeFullPath;
 
 	public MessageTypeHandler(InterfaceProtocContext context, DescriptorProtos.DescriptorProto messageTypeDesc, DescriptorProtos.FileDescriptorProto fileDesc) {
 		this.context = context;
@@ -53,16 +53,16 @@ public class MessageTypeHandler {
 
 		interfaceFullName = javaPackageName + "." + getInterfaceName();
 		builderInterfaceFullName = javaPackageName + "." + getBuilderInterfaceName(messageTypeDesc);
-		baseType = StringUtils.trimToNull(messageTypeDesc.getOptions().getExtension(Xsd.baseType));
+		baseTypeFullPath = "." + StringUtils.trimToNull(messageTypeDesc.getOptions().getExtension(Xsd.baseType));
 
 	}
 
 	private boolean isBaseType() {
-		return context.baseTypes.contains(messageTypeDesc.getName());
+		return context.baseTypes.contains(protoFullPath);
 	}
 
 	private boolean hasBaseType() {
-		return !StringUtils.isEmpty(baseType) && !StringUtils.isEmpty(getBaseTypeJavaPackageName());
+		return !StringUtils.isEmpty(baseTypeFullPath) && !StringUtils.isEmpty(getBaseTypeJavaPackageName());
 	}
 
 	public List<PluginProtos.CodeGeneratorResponse.File> process() {
@@ -73,8 +73,8 @@ public class MessageTypeHandler {
 			createBuilderInterface();
 			return createCodeGeneratorResponseFiles(interfaceFullName, builderInterfaceFullName);
 		} else if (hasBaseType()) {
-			String baseTypeInterfaceName = getBaseTypeJavaPackageName() + "." + getInterfaceName(baseType);
-			String baseTypeBuilderInterfaceName = getBaseTypeJavaPackageName() + "." + getBuilderInterfaceName(baseType);
+			String baseTypeInterfaceName = getBaseTypeJavaPackageName() + "." + getInterfaceName(getBaseTypeMessageName());
+			String baseTypeBuilderInterfaceName = getBaseTypeJavaPackageName() + "." + getBuilderInterfaceName(getBaseTypeMessageName());
 			return createCodeGeneratorResponseFiles(baseTypeInterfaceName, baseTypeBuilderInterfaceName);
 		}
 		return new ArrayList<>();
@@ -138,22 +138,20 @@ public class MessageTypeHandler {
 		MethodSpec buildMethod = MethodSpec.methodBuilder("build").addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).returns(interfaceClassName).build();
 		methods.add(buildMethod);
 
-		String baseTypeBuilderInterfaceName = getBuilderInterfaceName(baseType);
+		TypeName baseType;
+		if (hasBaseType()) {
+			String baseTypeBuilderInterfaceName = getBuilderInterfaceName(getBaseTypeMessageName());
+			baseType = getBaseType(baseTypeBuilderInterfaceName);
+		} else {
+			baseType = null;
+		}
 
-		TypeName baseType = getBaseType(baseTypeBuilderInterfaceName);
 		writeInterface(builderInterfaceName, methods, baseType);
 	}
 
 	private TypeName getBaseType(String baseTypeInterfaceName) {
-		TypeName baseTypeName = null;
-		if (hasBaseType()) {
-			// TODO base type must include package name
-			String baseTypeJavaPackageName = getBaseTypeJavaPackageName();
-			if (baseTypeJavaPackageName != null) {
-
-				baseTypeName = ClassName.get(baseTypeJavaPackageName, baseTypeInterfaceName, new String[0]);
-			}
-		}
+		String baseTypeJavaPackageName = getBaseTypeJavaPackageName();
+		TypeName baseTypeName = ClassName.get(baseTypeJavaPackageName, baseTypeInterfaceName, new String[0]);
 		return baseTypeName;
 	}
 
@@ -182,9 +180,13 @@ public class MessageTypeHandler {
 		}
 		String interfaceName = getInterfaceName();
 
-		String baseTypeInterfaceName = getInterfaceName(baseType);
-		TypeName baseType = getBaseType(baseTypeInterfaceName);
-
+		TypeName baseType;
+		if (hasBaseType()) {
+			String baseTypeInterfaceName = getInterfaceName(getBaseTypeMessageName());
+			baseType = getBaseType(baseTypeInterfaceName);
+		} else {
+			baseType = null;
+		}
 		writeInterface(interfaceName, methods, baseType);
 	}
 
@@ -320,7 +322,12 @@ public class MessageTypeHandler {
 	}
 
 	private String getBaseTypeJavaPackageName() {
-		return getJavaPackageName(fileDesc.getPackage(), baseType);
+		return getJavaPackageName(baseTypeFullPath);
 	}
 
+	private String getBaseTypeMessageName() {
+		String[] parts = baseTypeFullPath.split("\\.");
+		String messageName = parts[parts.length - 1];
+		return messageName;
+	}
 }

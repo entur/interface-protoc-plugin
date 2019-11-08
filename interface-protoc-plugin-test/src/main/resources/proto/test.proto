@@ -52,7 +52,7 @@ message TopLevel {
 
 message MidLevel {
 
-  option (xsd.base_type) = "TopLevel";
+  option (xsd.base_type) = "xxx.test.TopLevel";
 
   double top_level_double_val = 1;
   float top_level_float_val = 2;
@@ -100,7 +100,7 @@ message MidLevel {
 
 message BottomLevel {
 
-  option (xsd.base_type) = "MidLevel";
+  option (xsd.base_type) = "xxx.test.MidLevel";
 
   double top_level_double_val = 1;
   float top_level_float_val = 2;
