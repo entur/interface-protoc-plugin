@@ -113,6 +113,10 @@ public class MessageTypeHandler {
 
 		for (DescriptorProtos.FieldDescriptorProto field : messageTypeDesc.getFieldList()) {
 
+			// TODO ignore inner types for now
+			if (field.getTypeName().startsWith("." + protoFullPath)) {
+				continue;
+			}
 			String fieldAsCamelCase = toPascalCase(field.getName());
 			TypeName type = mapType(field);
 
@@ -166,6 +170,11 @@ public class MessageTypeHandler {
 		List<MethodSpec> methods = new ArrayList<>();
 
 		for (DescriptorProtos.FieldDescriptorProto field : messageTypeDesc.getFieldList()) {
+
+			// TODO ignore inner types for now
+			if (field.getTypeName().startsWith("." + protoFullPath)) {
+				continue;
+			}
 
 			String fieldAsCamelCase = toPascalCase(field.getName());
 			TypeName type = mapType(field);
