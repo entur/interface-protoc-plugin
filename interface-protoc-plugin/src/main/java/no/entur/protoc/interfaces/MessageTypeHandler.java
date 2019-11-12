@@ -25,7 +25,7 @@ import xsd.Xsd;
  * Generate interfaces for a proto message and create CodeGeneratorResponse.File to add it to generated java class.
  */
 public class MessageTypeHandler {
-	private final static String JAVA_EXTENSION = ".java";
+	private static final String JAVA_EXTENSION = ".java";
 
 	private final InterfaceProtocContext context;
 	private final DescriptorProtos.DescriptorProto messageTypeDesc;
@@ -109,7 +109,7 @@ public class MessageTypeHandler {
 		List<MethodSpec> methods = new ArrayList<>();
 
 		String builderInterfaceName = getBuilderInterfaceName(messageTypeDesc);
-		TypeName builderInterfaceTypeName = ClassName.get(javaPackageName, builderInterfaceName, new String[0]);
+		TypeName builderInterfaceTypeName = ClassName.get(javaPackageName, builderInterfaceName);
 
 		for (DescriptorProtos.FieldDescriptorProto field : messageTypeDesc.getFieldList()) {
 
@@ -145,7 +145,7 @@ public class MessageTypeHandler {
 			}
 		}
 
-		ClassName interfaceClassName = ClassName.get(javaPackageName, getInterfaceName(), new String[0]);
+		ClassName interfaceClassName = ClassName.get(javaPackageName, getInterfaceName());
 		MethodSpec buildMethod = MethodSpec.methodBuilder("build").addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).returns(interfaceClassName).build();
 		methods.add(buildMethod);
 
@@ -162,8 +162,7 @@ public class MessageTypeHandler {
 
 	private TypeName getBaseType(String baseTypeInterfaceName) {
 		String baseTypeJavaPackageName = getBaseTypeJavaPackageName();
-		TypeName baseTypeName = ClassName.get(baseTypeJavaPackageName, baseTypeInterfaceName, new String[0]);
-		return baseTypeName;
+		return ClassName.get(baseTypeJavaPackageName, baseTypeInterfaceName, new String[0]);
 	}
 
 	private void createInterface() {
@@ -218,8 +217,6 @@ public class MessageTypeHandler {
 		try {
 			javaFile.writeTo(new File(context.targetFolder));
 		} catch (Exception e) {
-			log(e.getMessage());
-
 			throw new RuntimeException(e);
 		}
 	}
@@ -270,7 +267,7 @@ public class MessageTypeHandler {
 		String className = parts[parts.length - 1];
 		String packageName = getJavaPackageName(typeName);
 
-		return ClassName.get(packageName, className, new String[0]);
+		return ClassName.get(packageName, className);
 	}
 
 	private String getJavaPackageName(String packageName, String messageName) {
@@ -332,18 +329,12 @@ public class MessageTypeHandler {
 		return javaPackage.replace(".", "/") + "/" + messageTypeDesc.getName() + JAVA_EXTENSION;
 	}
 
-	public static void log(String msg) {
-		System.out.println(msg
-				+ "                                                                                                                                                                              ");
-	}
-
 	private String getBaseTypeJavaPackageName() {
 		return getJavaPackageName(baseTypeFullPath);
 	}
 
 	private String getBaseTypeMessageName() {
 		String[] parts = baseTypeFullPath.split("\\.");
-		String messageName = parts[parts.length - 1];
-		return messageName;
+		return parts[parts.length - 1];
 	}
 }

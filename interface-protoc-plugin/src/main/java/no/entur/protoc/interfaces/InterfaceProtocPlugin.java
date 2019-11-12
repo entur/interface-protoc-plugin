@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.compiler.PluginProtos;
-import com.salesforce.jprotoc.GeneratorException;
 import com.salesforce.jprotoc.ProtoTypeMap;
 
 import xsd.Xsd;
@@ -38,7 +37,7 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 	}
 
 	@Override
-	public List<PluginProtos.CodeGeneratorResponse.File> generateFiles(PluginProtos.CodeGeneratorRequest request) throws GeneratorException {
+	public List<PluginProtos.CodeGeneratorResponse.File> generateFiles(PluginProtos.CodeGeneratorRequest request) {
 		ProtoTypeMap protoTypeMap = ProtoTypeMap.of(request.getProtoFileList());
 
 		Set<String> baseTypes = getAllBaseTypes(request);
