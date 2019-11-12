@@ -2,7 +2,10 @@ package no.entur.protoc.interfaces;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.lang.model.element.Modifier;
 
@@ -60,12 +63,12 @@ public class MessageTypeHandler {
 			baseTypeOptionalsVal = fileDesc.getPackage() + "." + baseTypeOptionalsVal;
 		}
 
-		baseTypeFullPath = "." + baseTypeOptionalsVal;
+		baseTypeFullPath = baseTypeOptionalsVal;
 
 	}
 
 	private boolean isBaseType() {
-		return context.baseTypes.contains(protoFullPath);
+		return context.baseTypes.containsKey(protoFullPath);
 	}
 
 	private boolean hasBaseType() {
@@ -105,18 +108,38 @@ public class MessageTypeHandler {
 		return files;
 	}
 
+	private List<DescriptorProtos.FieldDescriptorProto> getInterfaceFields() {
+		Set<String> baseTypeFields = getBaseTypeFields();
+
+		return messageTypeDesc.getFieldList()
+				.stream()
+				.filter(field -> !isInnerMessage(field.getTypeName())) // TODO ignore inner types for now as these are not supported by schema2proto
+				.filter(field -> !baseTypeFields.contains(field.getName())) // Exclude fields inherited from base type
+				.collect(Collectors.toList());
+
+	}
+
+	private boolean isInnerMessage(String typeName) {
+		return typeName.startsWith("." + protoFullPath);
+	}
+
+	private Set<String> getBaseTypeFields() {
+		DescriptorProtos.DescriptorProto baseTypeDesc = context.baseTypes.get(baseTypeFullPath);
+		if (baseTypeDesc != null) {
+			return baseTypeDesc.getFieldList().stream().map(DescriptorProtos.FieldDescriptorProto::getName).collect(Collectors.toSet());
+		}
+
+		return new HashSet<>();
+	}
+
 	private void createBuilderInterface() {
 		List<MethodSpec> methods = new ArrayList<>();
 
 		String builderInterfaceName = getBuilderInterfaceName(messageTypeDesc);
 		TypeName builderInterfaceTypeName = ClassName.get(javaPackageName, builderInterfaceName);
 
-		for (DescriptorProtos.FieldDescriptorProto field : messageTypeDesc.getFieldList()) {
+		for (DescriptorProtos.FieldDescriptorProto field : getInterfaceFields()) {
 
-			// TODO ignore inner types for now
-			if (field.getTypeName().startsWith("." + protoFullPath)) {
-				continue;
-			}
 			String fieldAsCamelCase = toPascalCase(field.getName());
 			TypeName type = mapType(field);
 
@@ -168,12 +191,7 @@ public class MessageTypeHandler {
 	private void createInterface() {
 		List<MethodSpec> methods = new ArrayList<>();
 
-		for (DescriptorProtos.FieldDescriptorProto field : messageTypeDesc.getFieldList()) {
-
-			// TODO ignore inner types for now
-			if (field.getTypeName().startsWith("." + protoFullPath)) {
-				continue;
-			}
+		for (DescriptorProtos.FieldDescriptorProto field : getInterfaceFields()) {
 
 			String fieldAsCamelCase = toPascalCase(field.getName());
 			TypeName type = mapType(field);
@@ -330,7 +348,7 @@ public class MessageTypeHandler {
 	}
 
 	private String getBaseTypeJavaPackageName() {
-		return getJavaPackageName(baseTypeFullPath);
+		return getJavaPackageName("." + baseTypeFullPath);
 	}
 
 	private String getBaseTypeMessageName() {

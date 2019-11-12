@@ -1,9 +1,10 @@
 package no.entur.protoc.interfaces;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,7 +41,7 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 	public List<PluginProtos.CodeGeneratorResponse.File> generateFiles(PluginProtos.CodeGeneratorRequest request) {
 		ProtoTypeMap protoTypeMap = ProtoTypeMap.of(request.getProtoFileList());
 
-		Set<String> baseTypes = getAllBaseTypes(request);
+		Map<String, DescriptorProtos.DescriptorProto> baseTypes = getAllBaseTypes(request);
 
 		context = new InterfaceProtocContext(targetFolder, protoTypeMap, baseTypes);
 
@@ -53,8 +54,33 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 				.collect(Collectors.toList());
 	}
 
-	private Set<String> getAllBaseTypes(PluginProtos.CodeGeneratorRequest request) {
-		return request.getProtoFileList().stream().map(this::getAllBaseTypesForFile).flatMap(Function.identity()).collect(Collectors.toSet());
+	private Map<String, DescriptorProtos.DescriptorProto> getAllBaseTypes(PluginProtos.CodeGeneratorRequest request) {
+		List<String> baseTypeFullNames = request.getProtoFileList()
+				.stream()
+				.map(this::getAllBaseTypesForFile)
+				.flatMap(Function.identity())
+				.collect(Collectors.toList());
+
+		Map<String, DescriptorProtos.DescriptorProto> baseTypes = new HashMap<>();
+		for (String baseTypeFullName : baseTypeFullNames) {
+			baseTypes.put(baseTypeFullName, findDescriptor(request, baseTypeFullName));
+		}
+		return baseTypes;
+	}
+
+	private DescriptorProtos.DescriptorProto findDescriptor(PluginProtos.CodeGeneratorRequest request, String messageFullName) {
+
+		return request.getProtoFileList()
+				.stream()
+				.map(file -> file.getMessageTypeList()
+						.stream()
+						.filter(messageType -> messageFullName.equals(file.getPackage() + "." + messageType.getName()))
+						.findFirst()
+						.orElse(null))
+				.filter(Objects::nonNull)
+				.findFirst()
+				.orElse(null);
+
 	}
 
 	private Stream<String> getAllBaseTypesForFile(DescriptorProtos.FileDescriptorProto fileDesc) {
