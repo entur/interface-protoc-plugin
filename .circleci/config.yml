@@ -75,7 +75,6 @@ jobs:
       - attach_workspace:
           at: ../
       - run: *sonar-scan
-
 workflows:
   version: 2
   nightly-sonar-analysis:
