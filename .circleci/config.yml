@@ -66,7 +66,6 @@ jobs:
           paths:
             - ~/.m2
           key: cache-dependencies-{{ checksum "pom.xml" }}-deploy
-
   sonar:
     docker:
       - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image-java11
