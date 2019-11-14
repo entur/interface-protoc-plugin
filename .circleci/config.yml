@@ -3,11 +3,11 @@ aliases:
   - &sonar-scan
     command: |
       mvn verify sonar:sonar \
-        -Dsonar.organization=enturas-github \
+        -Dsonar.organization=${SONAR_ORG} \
         -Dsonar.projectKey=entur_${CIRCLE_PROJECT_REPONAME} \
         -Dsonar.projectName=${CIRCLE_PROJECT_REPONAME} \
         -Dsonar.host.url=https://sonarcloud.io \
-        -Dsonar.login=${SONAR_TOKEN}
+        -Dsonar.login=${ENTUR_SONAR_PASSWORD}
 jobs:
   test:
     docker:
