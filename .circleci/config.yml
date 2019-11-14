@@ -83,12 +83,12 @@ jobs:
 workflows:
   version: 2
   nightly-sonar-analysis:
-#    triggers:
-#      - schedule:
-#          cron: "0 2 * * *"
-#          filters:
-#            branches:
-#              only: master
+    triggers:
+      - schedule:
+          cron: "0 2 * * *"
+          filters:
+            branches:
+              only: master
     jobs:
       - test:
           context: org-carbon
@@ -96,14 +96,14 @@ workflows:
           context: org-carbon
           requires:
             - test
-#  build_test_deploy:
-#    jobs:
-#      - test:
-#          context: org-carbon
-#      - deploy-artifactory:
-#          context: org-carbon
-#          requires:
-#            - test
-#          filters:
-#            branches:
-#              only: master
+  build_test_deploy:
+    jobs:
+      - test:
+          context: org-carbon
+      - deploy-artifactory:
+          context: org-carbon
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
