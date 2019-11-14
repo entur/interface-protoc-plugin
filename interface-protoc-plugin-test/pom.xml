@@ -15,9 +15,6 @@
     <properties>
         <generated.interface.directory>${project.build.directory}/generated-sources/proto-interfaces
         </generated.interface.directory>
-        <sonar.projectKey>entur_interface-protoc-plugin</sonar.projectKey>
-        <sonar.organization>enturas-github</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <build>
 
