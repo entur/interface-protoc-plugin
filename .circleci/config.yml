@@ -2,7 +2,7 @@ version: 2
 aliases:
   - &sonar-scan
     command: |
-      mvn sonar:sonar \
+      mvn verify sonar:sonar \
         -Dsonar.organization=${SONAR_ORG} \
         -Dsonar.projectKey=entur_${CIRCLE_PROJECT_REPONAME} \
         -Dsonar.projectName=${CIRCLE_PROJECT_REPONAME} \
