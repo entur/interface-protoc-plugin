@@ -2,7 +2,7 @@ version: 2
 aliases:
   - &sonar-scan
     command: |
-      mvn verify sonar:sonar \
+      mvn sonar:sonar \
         -Dsonar.organization=${SONAR_ORG} \
         -Dsonar.projectKey=entur_${CIRCLE_PROJECT_REPONAME} \
         -Dsonar.projectName=${CIRCLE_PROJECT_REPONAME} \
@@ -79,7 +79,7 @@ jobs:
       - attach_workspace:
           at: ../
       - run: *sonar-scan
-      
+
 workflows:
   version: 2
   nightly-sonar-analysis:
