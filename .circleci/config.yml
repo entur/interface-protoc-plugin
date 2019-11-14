@@ -71,7 +71,7 @@ jobs:
     environment:
       MAVEN_OPTS: -Xmx3G
     steps:
-      #      - checkout
+      - checkout
       - attach_workspace:
           at: ../
       - run: *sonar-scan
