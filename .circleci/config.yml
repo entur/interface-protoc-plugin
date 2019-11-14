@@ -2,12 +2,7 @@ version: 2
 aliases:
   - &sonar-scan
     command: |
-      mvn verify sonar:sonar \
-        -Dsonar.projectKey=${CIRCLE_PROJECT_REPONAME} \
-        -Dsonar.organization=enturas-github \
-        -Dsonar.projectName=${CIRCLE_PROJECT_REPONAME} \
-        -Dsonar.host.url=https://sonarcloud.io \
-        -Dsonar.login=${SONAR_TOKEN}
+      mvn verify sonar:sonar
 jobs:
   test:
     docker:
@@ -69,7 +64,10 @@ jobs:
 
   sonar:
     docker:
-      - image: circleci/java:8-jdk
+      - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image-java11
+        auth:
+          username: _json_key
+          password: $DOCKER_PASSWORD
     environment:
       MAVEN_OPTS: -Xmx3G
     steps:
