@@ -9,12 +9,12 @@ import org.junit.jupiter.api.Test;
 import com.google.protobuf.ByteString;
 
 import no.entur.protoc.interfaces.package1.BottomLevel;
+import no.entur.protoc.interfaces.package1.MidLevelBuilderI;
 import no.entur.protoc.interfaces.package1.MidLevelI;
-import no.entur.protoc.interfaces.package1.MidLevelIBuilder;
 import no.entur.protoc.interfaces.package2.EnumType;
 import no.entur.protoc.interfaces.package2.SimpleType;
+import no.entur.protoc.interfaces.package2.TopLevelBuilderI;
 import no.entur.protoc.interfaces.package2.TopLevelI;
-import no.entur.protoc.interfaces.package2.TopLevelIBuilder;
 
 public class InterfaceProtoPluginTest {
 
@@ -80,11 +80,11 @@ public class InterfaceProtoPluginTest {
 				org.getTopLevelRepeatedMessageValList().stream().map(SimpleType::getSimpleTypeStringVal).collect(Collectors.toList()));
 	}
 
-	private void populateMidLevelFields(MidLevelIBuilder builder) {
+	private void populateMidLevelFields(MidLevelBuilderI builder) {
 		builder.setMidLevelStringVal("midLevelStringVal");
 	}
 
-	private void populateTopLevelFields(TopLevelIBuilder builder) {
+	private void populateTopLevelFields(TopLevelBuilderI builder) {
 		builder.setTopLevelBoolVal(true)
 				.setTopLevelDoubleVal(55.5)
 				.setTopLevelEnumVal(EnumType.ENUM_VALUE_2)
