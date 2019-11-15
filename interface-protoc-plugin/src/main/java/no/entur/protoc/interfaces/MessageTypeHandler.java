@@ -322,7 +322,7 @@ public class MessageTypeHandler {
 	}
 
 	private String getBuilderInterfaceName(String messageName) {
-		return messageName + "IBuilder";
+		return messageName + "BuilderI";
 	}
 
 	private String toPascalCase(String snakeCaseString) {
