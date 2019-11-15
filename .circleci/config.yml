@@ -2,9 +2,9 @@ version: 2
 aliases:
   - &sonar-scan
     command: |
-      mvn sonar:sonar -s /tools/m2/settings.xml \
-        -Dsonar.projectKey=${CIRCLE_PROJECT_REPONAME} \
-        -Dsonar.organization=enturas-github \
+      mvn verify sonar:sonar \
+        -Dsonar.organization=${SONAR_ORG} \
+        -Dsonar.projectKey=entur_${CIRCLE_PROJECT_REPONAME} \
         -Dsonar.projectName=${CIRCLE_PROJECT_REPONAME} \
         -Dsonar.host.url=https://sonarcloud.io \
         -Dsonar.login=${ENTUR_SONAR_PASSWORD}
@@ -66,17 +66,16 @@ jobs:
           paths:
             - ~/.m2
           key: cache-dependencies-{{ checksum "pom.xml" }}-deploy
-
   sonar:
     docker:
-      - image: eu.gcr.io/entur-system-1287/circleci-java8
+      - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image-java11
         auth:
           username: _json_key
           password: $DOCKER_PASSWORD
     environment:
       MAVEN_OPTS: -Xmx3G
     steps:
-      #      - checkout
+      - checkout
       - attach_workspace:
           at: ../
       - run: *sonar-scan
