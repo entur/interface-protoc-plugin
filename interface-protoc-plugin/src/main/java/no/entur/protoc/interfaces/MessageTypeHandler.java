@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.MessageLite;
+import com.google.protobuf.MessageLiteOrBuilder;
 import com.google.protobuf.compiler.PluginProtos;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
@@ -178,7 +179,7 @@ public class MessageTypeHandler {
 			String baseTypeBuilderInterfaceName = getBuilderInterfaceName(getBaseTypeMessageName());
 			baseType = getBaseType(baseTypeBuilderInterfaceName);
 		} else {
-			baseType = null;
+			baseType = ClassName.get(MessageLiteOrBuilder.class);
 		}
 
 		writeInterface(builderInterfaceName, methods, baseType);
