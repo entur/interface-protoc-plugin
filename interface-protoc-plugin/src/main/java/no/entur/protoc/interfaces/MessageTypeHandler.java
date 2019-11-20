@@ -282,10 +282,10 @@ public class MessageTypeHandler {
 		String[] parts = typeName.split("\\.");
 		String className = parts[parts.length - 1];
 		String packageName = getJavaPackageName(typeName);
-		if (useInterfaceForLocalTypes && context.isGeneratedType(typeName)) {
-			// Refer to interface type generated proto classes
-			className = className + "I";
-		}
+//	TODO	if (useInterfaceForLocalTypes && context.isGeneratedType(typeName)) {
+//			// Refer to interface type generated proto classes
+//			className = className + "I";
+//		}
 		return ClassName.get(packageName, className);
 	}
 
