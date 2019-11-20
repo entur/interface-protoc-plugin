@@ -1,19 +1,20 @@
 package no.entur.protoc.interfaces;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
-import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.compiler.PluginProtos;
-import com.salesforce.jprotoc.ProtoTypeMap;
 
 import xsd.Xsd;
 
@@ -22,90 +23,82 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 	private static final String DEFAULT_TARGET_FOLDER = "target/generated-sources/proto-interfaces";
 
 	private String targetFolder;
+
+	private boolean generateInterfaces;
+	private boolean generateAddInterfaceCodeGenerationFiles;
 	private InterfaceProtocContext context;
 
 	public static void main(String[] args) {
-		String target = DEFAULT_TARGET_FOLDER;
-		if (args.length > 0) {
-			target = args[0];
+		Options options = new Options();
+
+		Option targetOption = new Option("t", "target", true, "target folder for generated interfaces");
+		targetOption.setRequired(false);
+		options.addOption(targetOption);
+
+		Option generateInterfacesOption = new Option("gi", "generate-interfaces", false, "generate interfaces for proto messages");
+		generateInterfacesOption.setRequired(false);
+		options.addOption(generateInterfacesOption);
+
+		Option implementInterfacesOption = new Option("ii", "implement-interfaces", false,
+				"generate protoc code generation files to make protoc generate java messages that implement interfaces");
+		options.addOption(implementInterfacesOption);
+
+		CommandLineParser parser = new DefaultParser();
+		HelpFormatter formatter = new HelpFormatter();
+		CommandLine cmd = null;
+
+		try {
+			cmd = parser.parse(options, args);
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+			formatter.printHelp("", options);
+
+			System.exit(1);
 		}
 
-		com.salesforce.jprotoc.ProtocPlugin.generate(Arrays.asList(new InterfaceProtocPlugin(target)), Arrays.asList(Xsd.baseType));
+		String target;
+		if (cmd.hasOption(targetOption.getOpt())) {
+			target = cmd.getOptionValue(targetOption.getOpt());
+		} else {
+			target = DEFAULT_TARGET_FOLDER;
+		}
+		boolean generateInterfaces = cmd.hasOption(generateInterfacesOption.getOpt());
+		boolean generateAddInterfaceCodeGenerationFiles = cmd.hasOption(implementInterfacesOption.getOpt());
+
+		com.salesforce.jprotoc.ProtocPlugin.generate(
+				Arrays.asList(new InterfaceProtocPlugin(target, generateInterfaces, generateAddInterfaceCodeGenerationFiles)), Arrays.asList(Xsd.baseType));
 	}
 
-	public InterfaceProtocPlugin(String targetFolder) {
+	public InterfaceProtocPlugin(String targetFolder, boolean generateInterfaces, boolean generateAddInterfaceCodeGenerationFiles) {
 		this.targetFolder = targetFolder;
+		this.generateInterfaces = generateInterfaces;
+		this.generateAddInterfaceCodeGenerationFiles = generateAddInterfaceCodeGenerationFiles;
 	}
 
 	@Override
 	public List<PluginProtos.CodeGeneratorResponse.File> generateFiles(PluginProtos.CodeGeneratorRequest request) {
-		ProtoTypeMap protoTypeMap = ProtoTypeMap.of(request.getProtoFileList());
 
-		Map<String, DescriptorProtos.DescriptorProto> baseTypes = getAllBaseTypes(request);
 
-		context = new InterfaceProtocContext(targetFolder, protoTypeMap, baseTypes);
+		context = new InterfaceProtocContext(targetFolder, request);
 
-		return request.getProtoFileList()
+		List<MessageTypeHandler> messageTypeHandlers = request.getProtoFileList()
 				.stream()
 				.filter(file -> request.getFileToGenerateList().contains(file.getName()))
-				.map(this::handleProtoFile)
-
-				.flatMap(Function.identity())
-				.collect(Collectors.toList());
-	}
-
-	private Map<String, DescriptorProtos.DescriptorProto> getAllBaseTypes(PluginProtos.CodeGeneratorRequest request) {
-		List<String> baseTypeFullNames = request.getProtoFileList()
-				.stream()
-				.map(this::getAllBaseTypesForFile)
+				.map(file -> file.getMessageTypeList().stream().map(messageType -> new MessageTypeHandler(context, messageType, file)))
 				.flatMap(Function.identity())
 				.collect(Collectors.toList());
 
-		Map<String, DescriptorProtos.DescriptorProto> baseTypes = new HashMap<>();
-		for (String baseTypeFullName : baseTypeFullNames) {
-			baseTypes.put(baseTypeFullName, findDescriptor(request, baseTypeFullName));
+		if (generateInterfaces) {
+			messageTypeHandlers.forEach(MessageTypeHandler::generateInterfaces);
 		}
-		return baseTypes;
-	}
-
-	private DescriptorProtos.DescriptorProto findDescriptor(PluginProtos.CodeGeneratorRequest request, String messageFullName) {
-
-		return request.getProtoFileList()
-				.stream()
-				.map(file -> file.getMessageTypeList()
-						.stream()
-						.filter(messageType -> messageFullName.equals(file.getPackage() + "." + messageType.getName()))
-						.findFirst()
-						.orElse(null))
-				.filter(Objects::nonNull)
-				.findFirst()
-				.orElse(null);
-
-	}
-
-	private Stream<String> getAllBaseTypesForFile(DescriptorProtos.FileDescriptorProto fileDesc) {
-		String packageName = fileDesc.getPackage();
-		return fileDesc.getMessageTypeList().stream().map(messageTypeDesc -> getFullBaseTypeName(packageName, messageTypeDesc)).filter(Objects::nonNull);
-	}
-
-	private String getFullBaseTypeName(String packageName, DescriptorProtos.DescriptorProto messageTypeDesc) {
-
-		String optionVal = messageTypeDesc.getOptions().getExtension(Xsd.baseType);
-
-		if (!StringUtils.isEmpty(optionVal) && !optionVal.contains(".")) {
-			// Optional value is a relative references within same file/package. Append package name from current file
-			return packageName + "." + optionVal;
+		if (generateAddInterfaceCodeGenerationFiles) {
+			return messageTypeHandlers.stream()
+					.map(MessageTypeHandler::generateAddInterfaceCodeGenerationFiles)
+					.flatMap(List::stream)
+					.collect(Collectors.toList());
 		}
-		return optionVal;
+		return new ArrayList<>();
 	}
 
-	private Stream<PluginProtos.CodeGeneratorResponse.File> handleProtoFile(final DescriptorProtos.FileDescriptorProto fileDesc) {
-
-		return Stream.of(fileDesc.getMessageTypeList()
-				.stream()
-				.map(messageType -> new MessageTypeHandler(context, messageType, fileDesc))
-				.map(MessageTypeHandler::process)
-				.flatMap(List::stream)).flatMap(Function.identity());
-	}
 
 }

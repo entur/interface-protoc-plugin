@@ -49,6 +49,7 @@ public class MessageTypeHandler {
 		this.context = context;
 		this.messageTypeDesc = messageTypeDesc;
 		this.fileDesc = fileDesc;
+		init();
 	}
 
 	private void init() {
@@ -69,42 +70,28 @@ public class MessageTypeHandler {
 
 	}
 
-	private boolean isBaseType() {
-		return context.baseTypes.containsKey(protoFullPath);
-	}
-
 	private boolean hasBaseType() {
 		return !StringUtils.isEmpty(baseTypeFullPath) && !StringUtils.isEmpty(getBaseTypeJavaPackageName());
 	}
 
-	public List<PluginProtos.CodeGeneratorResponse.File> process() {
-		init();
+	public void generateInterfaces() {
 
-		if (isBaseType()) {
-			createInterface();
-			createBuilderInterface();
-			return createCodeGeneratorResponseFiles(interfaceFullName, builderInterfaceFullName);
-		} else if (hasBaseType()) {
-			String baseTypeInterfaceName = getBaseTypeJavaPackageName() + "." + getInterfaceName(getBaseTypeMessageName());
-			String baseTypeBuilderInterfaceName = getBaseTypeJavaPackageName() + "." + getBuilderInterfaceName(getBaseTypeMessageName());
-			return createCodeGeneratorResponseFiles(baseTypeInterfaceName, baseTypeBuilderInterfaceName);
-		}
-		return new ArrayList<>();
+		createInterface();
+		createBuilderInterface();
 	}
 
-	private List<PluginProtos.CodeGeneratorResponse.File> createCodeGeneratorResponseFiles(String messageImplementsInterface,
-			String builderImplementsInterface) {
+	public List<PluginProtos.CodeGeneratorResponse.File> generateAddInterfaceCodeGenerationFiles() {
 		List<PluginProtos.CodeGeneratorResponse.File> files = new ArrayList<>();
 		files.add(PluginProtos.CodeGeneratorResponse.File.newBuilder()
 				.setName(getCodeGeneratorFileName())
 				.setInsertionPoint("message_implements:" + protoFullPath)
-				.setContent(messageImplementsInterface + ",")
+				.setContent(interfaceFullName + ",")
 				.build());
 
 		files.add(PluginProtos.CodeGeneratorResponse.File.newBuilder()
 				.setName(getCodeGeneratorFileName())
 				.setInsertionPoint("builder_implements:" + protoFullPath)
-				.setContent(builderImplementsInterface + ",")
+				.setContent(builderInterfaceFullName + ",")
 				.build());
 
 		return files;
@@ -143,15 +130,10 @@ public class MessageTypeHandler {
 		for (DescriptorProtos.FieldDescriptorProto field : getInterfaceFields()) {
 
 			String fieldAsCamelCase = toPascalCase(field.getName());
-			TypeName type = mapType(field);
+			TypeName type = mapType(field, false);
 
 			if (field.getLabel() == DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED) {
-				TypeName typeArgument;
-				if (field.getType() == DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING) {
-					typeArgument = type.box();
-				} else {
-					typeArgument = WildcardTypeName.subtypeOf(type.box());
-				}
+				TypeName typeArgument = getListTypeArgument(field, type);
 				ParameterizedTypeName repeatedType = ParameterizedTypeName.get(ClassName.get(Iterable.class), typeArgument);
 
 				MethodSpec getMethod = MethodSpec.methodBuilder("addAll" + fieldAsCamelCase)
@@ -185,6 +167,16 @@ public class MessageTypeHandler {
 		writeInterface(builderInterfaceName, methods, baseType);
 	}
 
+	private TypeName getListTypeArgument(DescriptorProtos.FieldDescriptorProto field, TypeName type) {
+		TypeName typeArgument;
+		if (field.getType() == DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING) {
+			typeArgument = type.box();
+		} else {
+			typeArgument = WildcardTypeName.subtypeOf(type.box());
+		}
+		return typeArgument;
+	}
+
 	private TypeName getBaseType(String baseTypeInterfaceName) {
 		String baseTypeJavaPackageName = getBaseTypeJavaPackageName();
 		return ClassName.get(baseTypeJavaPackageName, baseTypeInterfaceName, new String[0]);
@@ -196,10 +188,11 @@ public class MessageTypeHandler {
 		for (DescriptorProtos.FieldDescriptorProto field : getInterfaceFields()) {
 
 			String fieldAsCamelCase = toPascalCase(field.getName());
-			TypeName type = mapType(field);
+			TypeName type = mapType(field, true);
 
 			if (field.getLabel() == DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED) {
-				ParameterizedTypeName listType = ParameterizedTypeName.get(ClassName.get(List.class), type.box());
+				TypeName typeArgument = getListTypeArgument(field, type);
+				ParameterizedTypeName listType = ParameterizedTypeName.get(ClassName.get(List.class), typeArgument);
 				MethodSpec getMethod = MethodSpec.methodBuilder("get" + fieldAsCamelCase + "List")
 						.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
 						.returns(listType)
@@ -242,7 +235,7 @@ public class MessageTypeHandler {
 		}
 	}
 
-	private TypeName mapType(DescriptorProtos.FieldDescriptorProto field) {
+	private TypeName mapType(DescriptorProtos.FieldDescriptorProto field, boolean useInterfaceForLocalTypes) {
 
 		switch (field.getType()) {
 		case TYPE_DOUBLE:
@@ -273,8 +266,10 @@ public class MessageTypeHandler {
 			return ClassName.get(ByteString.class);
 
 		case TYPE_MESSAGE:
+			return getClassNameFromTypeName(field.getTypeName(), useInterfaceForLocalTypes);
+
 		case TYPE_ENUM:
-			return getClassNameFromTypeName(field.getTypeName());
+			return getClassNameFromTypeName(field.getTypeName(), false);
 
 		case TYPE_GROUP:
 // Groups not supported in proto3
@@ -283,11 +278,14 @@ public class MessageTypeHandler {
 		throw new IllegalArgumentException("Unable to map unknown type: " + field.getType());
 	}
 
-	public ClassName getClassNameFromTypeName(String typeName) {
+	public ClassName getClassNameFromTypeName(String typeName, boolean useInterfaceForLocalTypes) {
 		String[] parts = typeName.split("\\.");
 		String className = parts[parts.length - 1];
 		String packageName = getJavaPackageName(typeName);
-
+		if (useInterfaceForLocalTypes && context.isGeneratedType(typeName)) {
+			// Refer to interface type generated proto classes
+			className = className + "I";
+		}
 		return ClassName.get(packageName, className);
 	}
 
