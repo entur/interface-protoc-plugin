@@ -22,6 +22,8 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 
 	private static final String DEFAULT_TARGET_FOLDER = "target/generated-sources/proto-interfaces";
 
+	private String[] commandLineArgs;
+
 	private String targetFolder;
 
 	private boolean generateInterfaces;
@@ -29,6 +31,52 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 	private InterfaceProtocContext context;
 
 	public static void main(String[] args) {
+
+		com.salesforce.jprotoc.ProtocPlugin.generate(Arrays.asList(new InterfaceProtocPlugin(args)), Arrays.asList(Xsd.baseType));
+	}
+
+	public InterfaceProtocPlugin(String[] commandLineArgs) {
+		this.commandLineArgs = commandLineArgs;
+	}
+
+	@Override
+	public List<PluginProtos.CodeGeneratorResponse.File> generateFiles(PluginProtos.CodeGeneratorRequest request) {
+		parseArgs(combineCommandLineArgsAndPluginParam(commandLineArgs, request.getParameter()));
+		context = new InterfaceProtocContext(targetFolder, request);
+
+		List<MessageTypeHandler> messageTypeHandlers = request.getProtoFileList()
+				.stream()
+				.filter(file -> request.getFileToGenerateList().contains(file.getName()))
+				.map(file -> file.getMessageTypeList().stream().map(messageType -> new MessageTypeHandler(context, messageType, file)))
+				.flatMap(Function.identity())
+				.collect(Collectors.toList());
+
+		if (generateInterfaces) {
+			messageTypeHandlers.forEach(MessageTypeHandler::generateInterfaces);
+		}
+		if (generateAddInterfaceCodeGenerationFiles) {
+			return messageTypeHandlers.stream()
+					.map(MessageTypeHandler::generateAddInterfaceCodeGenerationFiles)
+					.flatMap(List::stream)
+					.collect(Collectors.toList());
+		}
+		return new ArrayList<>();
+	}
+
+	// Must support both plugin parameters and command line arguments to support usage as stand alone executable and chained plugin
+	private String[] combineCommandLineArgsAndPluginParam(String args[], String pluginParamRaw) {
+		String[] pluginParams = pluginParamRaw == null ? new String[0] : pluginParamRaw.split(" ");
+
+		int aLen = pluginParams.length;
+		int bLen = args.length;
+		String[] result = new String[aLen + bLen];
+		System.arraycopy(pluginParams, 0, result, 0, aLen);
+		System.arraycopy(args, 0, result, aLen, bLen);
+		return result;
+	}
+
+	private void parseArgs(String args[]) {
+
 		Options options = new Options();
 
 		Option targetOption = new Option("t", "target", true, "target folder for generated interfaces");
@@ -56,49 +104,13 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 			System.exit(1);
 		}
 
-		String target;
 		if (cmd.hasOption(targetOption.getOpt())) {
-			target = cmd.getOptionValue(targetOption.getOpt());
+			targetFolder = cmd.getOptionValue(targetOption.getOpt());
 		} else {
-			target = DEFAULT_TARGET_FOLDER;
+			targetFolder = DEFAULT_TARGET_FOLDER;
 		}
-		boolean generateInterfaces = cmd.hasOption(generateInterfacesOption.getOpt());
-		boolean generateAddInterfaceCodeGenerationFiles = cmd.hasOption(implementInterfacesOption.getOpt());
+		generateInterfaces = cmd.hasOption(generateInterfacesOption.getOpt());
+		generateAddInterfaceCodeGenerationFiles = cmd.hasOption(implementInterfacesOption.getOpt());
 
-		com.salesforce.jprotoc.ProtocPlugin.generate(
-				Arrays.asList(new InterfaceProtocPlugin(target, generateInterfaces, generateAddInterfaceCodeGenerationFiles)), Arrays.asList(Xsd.baseType));
 	}
-
-	public InterfaceProtocPlugin(String targetFolder, boolean generateInterfaces, boolean generateAddInterfaceCodeGenerationFiles) {
-		this.targetFolder = targetFolder;
-		this.generateInterfaces = generateInterfaces;
-		this.generateAddInterfaceCodeGenerationFiles = generateAddInterfaceCodeGenerationFiles;
-	}
-
-	@Override
-	public List<PluginProtos.CodeGeneratorResponse.File> generateFiles(PluginProtos.CodeGeneratorRequest request) {
-
-
-		context = new InterfaceProtocContext(targetFolder, request);
-
-		List<MessageTypeHandler> messageTypeHandlers = request.getProtoFileList()
-				.stream()
-				.filter(file -> request.getFileToGenerateList().contains(file.getName()))
-				.map(file -> file.getMessageTypeList().stream().map(messageType -> new MessageTypeHandler(context, messageType, file)))
-				.flatMap(Function.identity())
-				.collect(Collectors.toList());
-
-		if (generateInterfaces) {
-			messageTypeHandlers.forEach(MessageTypeHandler::generateInterfaces);
-		}
-		if (generateAddInterfaceCodeGenerationFiles) {
-			return messageTypeHandlers.stream()
-					.map(MessageTypeHandler::generateAddInterfaceCodeGenerationFiles)
-					.flatMap(List::stream)
-					.collect(Collectors.toList());
-		}
-		return new ArrayList<>();
-	}
-
-
 }

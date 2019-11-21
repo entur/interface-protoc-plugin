@@ -112,16 +112,8 @@
                             <pluginId>generate-interfaces</pluginId>
                             <pluginArtifact>no.entur:interface-protoc-plugin:1.0-SNAPSHOT:exe:${os.detected.classifier}
                             </pluginArtifact>
-                            <protocPlugins>
-                                <protocPlugin>
-                                    <id>add-interfaces</id>
-                                    <groupId>${groupId}</groupId>
-                                    <artifactId>interface-protoc-plugin</artifactId>
-                                    <version>${project.version}</version>
-                                    <mainClass>no.entur.protoc.interfaces.InterfaceProtocPlugin</mainClass>
-                                    <args>-generate-interfaces -target=${generated.interface.directory}</args>
-                                </protocPlugin>
-                            </protocPlugins>
+                            <pluginParameter>-generate-interfaces -target=${generated.interface.directory}
+                            </pluginParameter>
                         </configuration>
                     </execution>
 
