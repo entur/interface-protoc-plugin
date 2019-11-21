@@ -133,7 +133,8 @@ public class MessageTypeHandler {
 			TypeName type = mapType(field, false);
 
 			if (field.getLabel() == DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED) {
-				TypeName typeArgument = getListTypeArgument(field, type);
+
+				TypeName typeArgument = getSetterListTypeArgument(field, type);
 				ParameterizedTypeName repeatedType = ParameterizedTypeName.get(ClassName.get(Iterable.class), typeArgument);
 
 				MethodSpec getMethod = MethodSpec.methodBuilder("addAll" + fieldAsCamelCase)
@@ -167,16 +168,6 @@ public class MessageTypeHandler {
 		writeInterface(builderInterfaceName, methods, baseType);
 	}
 
-	private TypeName getListTypeArgument(DescriptorProtos.FieldDescriptorProto field, TypeName type) {
-		TypeName typeArgument;
-		if (field.getType() == DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING) {
-			typeArgument = type.box();
-		} else {
-			typeArgument = WildcardTypeName.subtypeOf(type.box());
-		}
-		return typeArgument;
-	}
-
 	private TypeName getBaseType(String baseTypeInterfaceName) {
 		String baseTypeJavaPackageName = getBaseTypeJavaPackageName();
 		return ClassName.get(baseTypeJavaPackageName, baseTypeInterfaceName, new String[0]);
@@ -188,10 +179,12 @@ public class MessageTypeHandler {
 		for (DescriptorProtos.FieldDescriptorProto field : getInterfaceFields()) {
 
 			String fieldAsCamelCase = toPascalCase(field.getName());
-			TypeName type = mapType(field, true);
+			TypeName type = mapType(field, context.useInterfacesForLocalReturnTypes);
 
 			if (field.getLabel() == DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED) {
-				TypeName typeArgument = getListTypeArgument(field, type);
+
+				TypeName typeArgument = getGetterListTypeArgument(field, type);
+
 				ParameterizedTypeName listType = ParameterizedTypeName.get(ClassName.get(List.class), typeArgument);
 				MethodSpec getMethod = MethodSpec.methodBuilder("get" + fieldAsCamelCase + "List")
 						.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
@@ -282,11 +275,42 @@ public class MessageTypeHandler {
 		String[] parts = typeName.split("\\.");
 		String className = parts[parts.length - 1];
 		String packageName = getJavaPackageName(typeName);
-//	TODO	if (useInterfaceForLocalTypes && context.isGeneratedType(typeName)) {
-//			// Refer to interface type generated proto classes
-//			className = className + "I";
-//		}
+		if (useInterfaceForLocalTypes && context.isGeneratedType(typeName)) {
+			// Refer to interface type generated proto classes
+			className = className + "I";
+		}
 		return ClassName.get(packageName, className);
+	}
+
+	private TypeName getSetterListTypeArgument(DescriptorProtos.FieldDescriptorProto field, TypeName type) {
+		TypeName typeArgument;
+
+		boolean useWildcardGenericType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING != field.getType();
+
+		if (useWildcardGenericType) {
+			typeArgument = WildcardTypeName.subtypeOf(type.box());
+		} else {
+			typeArgument = type;
+		}
+		return typeArgument;
+	}
+
+	private TypeName getGetterListTypeArgument(DescriptorProtos.FieldDescriptorProto field, TypeName type) {
+		TypeName typeArgument;
+		boolean useWildcardGenericType = context.useInterfacesForLocalReturnTypes && isInterfacedField(field);
+
+		if (useWildcardGenericType) {
+			typeArgument = WildcardTypeName.subtypeOf(type.box());
+		} else if (type.isPrimitive()) {
+			typeArgument = type.box();
+		} else {
+			typeArgument = type;
+		}
+		return typeArgument;
+	}
+
+	private boolean isInterfacedField(DescriptorProtos.FieldDescriptorProto field) {
+		return field.getType() == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE && context.isGeneratedType(field.getTypeName());
 	}
 
 	private String getJavaPackageName(String packageName, String messageName) {

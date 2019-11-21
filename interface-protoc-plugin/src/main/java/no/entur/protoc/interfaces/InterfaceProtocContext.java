@@ -24,6 +24,9 @@ public class InterfaceProtocContext {
 	public final Map<String, DescriptorProtos.DescriptorProto> baseTypes;
 	public final Set<String> messageTypes;
 
+	// Disabled interfaces as return type for generated classes at it requires use of wildcard types which is strongly discourage + does not work with esper.
+	public final boolean useInterfacesForLocalReturnTypes = false;
+
 	public InterfaceProtocContext(String targetFolder, PluginProtos.CodeGeneratorRequest request) {
 		this.targetFolder = targetFolder;
 
