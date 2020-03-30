@@ -97,12 +97,13 @@ public class MessageTypeHandler {
 		return files;
 	}
 
-	private List<DescriptorProtos.FieldDescriptorProto> getInterfaceFields() {
+	private List<DescriptorProtos.FieldDescriptorProto> getInterfaceFields(boolean includeInnerFields) {
 		Set<String> baseTypeFields = getBaseTypeFields();
 
 		return messageTypeDesc.getFieldList()
 				.stream()
-				.filter(field -> !isInnerMessage(field.getTypeName())) // TODO ignore inner types for now as these are not supported by schema2proto
+				.filter(field -> includeInnerFields || !isInnerMessage(field.getTypeName())) // TODO ignore inner types for now as these are not supported by
+																								// schema2proto
 				.filter(field -> !baseTypeFields.contains(field.getName())) // Exclude fields inherited from base type
 				.collect(Collectors.toList());
 
@@ -127,7 +128,7 @@ public class MessageTypeHandler {
 		String builderInterfaceName = getBuilderInterfaceName(messageTypeDesc);
 		TypeName builderInterfaceTypeName = ClassName.get(javaPackageName, builderInterfaceName);
 
-		for (DescriptorProtos.FieldDescriptorProto field : getInterfaceFields()) {
+		for (DescriptorProtos.FieldDescriptorProto field : getInterfaceFields(false)) {
 
 			String fieldAsCamelCase = toPascalCase(field.getName());
 			TypeName type = mapType(field, false);
@@ -176,13 +177,12 @@ public class MessageTypeHandler {
 	private void createInterface() {
 		List<MethodSpec> methods = new ArrayList<>();
 
-		for (DescriptorProtos.FieldDescriptorProto field : getInterfaceFields()) {
+		for (DescriptorProtos.FieldDescriptorProto field : getInterfaceFields(true)) {
 
 			String fieldAsCamelCase = toPascalCase(field.getName());
 			TypeName type = mapType(field, context.useInterfacesForLocalReturnTypes);
 
 			if (field.getLabel() == DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED) {
-
 				TypeName typeArgument = getGetterListTypeArgument(field, type);
 
 				ParameterizedTypeName listType = ParameterizedTypeName.get(ClassName.get(List.class), typeArgument);
@@ -192,9 +192,16 @@ public class MessageTypeHandler {
 						.build();
 				methods.add(getMethod);
 			} else {
+				TypeName returnType;
+				// Cannot use exact return type for inner types as these are generated per message and type is not inherited
+				if (isInnerMessage(field.getTypeName()) && field.getType() == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE) {
+					returnType = ClassName.get(MessageLite.class);
+				} else {
+					returnType = type;
+				}
 				MethodSpec getMethod = MethodSpec.methodBuilder("get" + fieldAsCamelCase)
 						.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-						.returns(type)
+						.returns(returnType)
 						.build();
 				methods.add(getMethod);
 			}
@@ -300,7 +307,12 @@ public class MessageTypeHandler {
 		boolean useWildcardGenericType = context.useInterfacesForLocalReturnTypes && isInterfacedField(field);
 
 		if (useWildcardGenericType) {
-			typeArgument = WildcardTypeName.subtypeOf(type.box());
+			if (isInnerMessage(field.getTypeName())) {
+				// Cannot use exact return type for inner types as these are generated per message and type is not inherited
+				typeArgument = WildcardTypeName.subtypeOf(ParameterizedTypeName.get(ClassName.get(MessageLite.class)));
+			} else {
+				typeArgument = WildcardTypeName.subtypeOf(type.box());
+			}
 		} else if (type.isPrimitive()) {
 			typeArgument = type.box();
 		} else {
