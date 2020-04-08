@@ -131,9 +131,9 @@ jobs:
     - checkout
     - generate-maven-settings-file:
         settings-file: *maven-settings-file
-    #    - restore_cache:
-    #        keys:
-    #        - cache-dependencies-{{ checksum "pom.xml" }}
+        - restore_cache:
+            keys:
+            - cache-dependencies-{{ checksum "pom.xml" }}
     - run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
     - save_cache:
         paths:
