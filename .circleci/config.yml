@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 aliases:
 - &downstream_builds
   name: Trigger downstream builds
@@ -153,21 +153,22 @@ jobs:
       - store_artifacts:
           path: ~/junit
   deploy-artifactory:
-    docker:
-    - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image
-      auth:
-        username: _json_key
-        password: $DOCKER_PASSWORD
+    <<: *java-container-config
     environment:
-      MAVEN_OPTS: -Xmx3G
+      MAVEN_OPTS: -Xmx1G -Xms128m
     steps:
-    - attach_workspace:
-        at: ../
-    - run: mvn deploy -s /tools/m2/settings.xml -DskipTests -Dspotless.check.skip=true
+    - checkout
+    - generate-maven-settings-file:
+        settings-file: *maven-settings-file
+    - restore_cache:
+        keys:
+        - cache-dependencies-{{ checksum "pom.xml" }}
+    - run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
     - save_cache:
         paths:
         - ~/.m2
-        key: cache-dependencies-{{ checksum "pom.xml" }}-deploy
+        key: cache-dependencies-static
+    - run: mvn deploy -s /tools/m2/settings.xml -DskipTests -Dspotless.check.skip=true
   release:
     <<: *java-container-config
     environment:
