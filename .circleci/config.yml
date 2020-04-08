@@ -1,122 +1,20 @@
 version: 2
 aliases:
-- &downstream_builds
-  name: Trigger downstream builds
-  command: |
-    echo 'export CIRCLE_API_TOKEN="$CIRCLE_API_USER_TOKEN"' >> $BASH_ENV
-    /tools/downstream_single_trigger.sh "gh/entur/abt-protobuf" "develop"
-
-- &sonar-scan
-  command: |
-    mvn verify sonar:sonar \
-      -Dsonar.organization=${SONAR_ORG} \
-      -Dsonar.projectKey=entur_${CIRCLE_PROJECT_REPONAME} \
-      -Dsonar.projectName=${CIRCLE_PROJECT_REPONAME} \
-      -Dsonar.host.url=https://sonarcloud.io \
-      -Dsonar.login=${ENTUR_SONAR_PASSWORD}
-
-- &release
-  name: Release
-  command: |
-    if [ "$(git log -1 --pretty=%B)" == "Start release" ]
-    then
-      echo "Start release"
-      git config --global user.email "circleci@entur.no"
-      git config --global user.name "circleci"
-      git checkout master
-      git pull --no-edit
-      git checkout develop
-      mvn versions:use-releases
-      mvn gitflow:release-start gitflow:release-finish -Prelease -DpostReleaseGoals=deploy -DargLine=-Prelease,'!protoc' -B
-    else
-      echo "Skipping release"
-    fi
-
-- &import_gpg_key
-  name: Configure GPG private key for signing project artifacts in OSS Sonatype
-  command: |
-    echo $SONATYPE_GPG_KEY_BASE64 | base64 --decode | gpg --batch --no-tty --import --yes
-
-- &maven-settings-file
-    "\"<settings xsi:schemaLocation='http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd' xmlns='http://maven.apache.org/SETTINGS/1.1.0'
-              xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
-            <servers>
-            <server>
-                   <username>$SONATYPE_USERNAME</username>
-                   <password>$SONATYPE_PASSWORD</password>
-                   <id>ossrh</id>
-                 </server>
-              <server>
-                <username>$entur_artifactory_user</username>
-                <password>$entur_artifactory_password</password>
-                <id>central</id>
-              </server>
-              <server>
-                <username>$entur_artifactory_user</username>
-                <password>$entur_artifactory_password</password>
-                <id>snapshots</id>
-              </server>
-            </servers>
-            <profiles>
-        <profile>
-          <repositories>
-            <repository>
-              <snapshots>
-                <enabled>false</enabled>
-              </snapshots>
-              <id>central</id>
-              <name>entur-team-kontobasert-billettering-release</name>
-              <url>https://entur2.jfrog.io/entur2/entur-team-kontobasert-billettering-release</url>
-            </repository>
-            <repository>
-              <snapshots />
-              <id>snapshots</id>
-              <name>entur-team-kontobasert-billettering-snapshot</name>
-              <url>https://entur2.jfrog.io/entur2/entur-team-kontobasert-billettering-snapshot</url>
-            </repository>
-          </repositories>
-          <pluginRepositories>
-            <pluginRepository>
-              <snapshots>
-                <enabled>false</enabled>
-              </snapshots>
-              <id>central</id>
-              <name>entur-team-kontobasert-billettering-release</name>
-              <url>https://entur2.jfrog.io/entur2/entur-team-kontobasert-billettering-release</url>
-            </pluginRepository>
-            <pluginRepository>
-              <snapshots />
-              <id>snapshots</id>
-              <name>entur-team-kontobasert-billettering-snapshot</name>
-              <url>https://entur2.jfrog.io/entur2/entur-team-kontobasert-billettering-snapshot</url>
-            </pluginRepository>
-          </pluginRepositories>
-          <id>artifactory</id>
-        </profile>
-            </profiles>
-            <activeProfiles>
-              <activeProfile>artifactory</activeProfile>
-            </activeProfiles>
-          </settings>\""
-
-- &circleci-container-config
-  docker:
-  - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image
-    auth:
-      username: _json_key
-      password: $DOCKER_PASSWORD
-
-- &java-container-config
-  docker:
-  - image: circleci/openjdk:8-jdk
-
+  - &sonar-scan
+    command: |
+      mvn verify sonar:sonar \
+        -Dsonar.organization=${SONAR_ORG} \
+        -Dsonar.projectKey=entur_${CIRCLE_PROJECT_REPONAME} \
+        -Dsonar.projectName=${CIRCLE_PROJECT_REPONAME} \
+        -Dsonar.host.url=https://sonarcloud.io \
+        -Dsonar.login=${ENTUR_SONAR_PASSWORD}
 jobs:
   test:
     docker:
-    - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image-java11
-      auth:
-        username: _json_key
-        password: $DOCKER_PASSWORD
+      - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image-java11
+        auth:
+          username: _json_key
+          password: $DOCKER_PASSWORD
     environment:
       MAVEN_OPTS: -Xmx3G
     steps:
@@ -154,51 +52,33 @@ jobs:
           path: ~/junit
   deploy-artifactory:
     docker:
-    - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image
-      auth:
-        username: _json_key
-        password: $DOCKER_PASSWORD
+      - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image
+        auth:
+          username: _json_key
+          password: $DOCKER_PASSWORD
     environment:
       MAVEN_OPTS: -Xmx3G
     steps:
-    - attach_workspace:
-        at: ../
-    - run: mvn deploy -s /tools/m2/settings.xml -DskipTests -Dspotless.check.skip=true
-    - save_cache:
-        paths:
-        - ~/.m2
-        key: cache-dependencies-{{ checksum "pom.xml" }}-deploy
-  release:
-    <<: *java-container-config
-    environment:
-      MAVEN_OPTS: -Xmx1G -Xms128m
-    steps:
-    - checkout
-    - run: *import_gpg_key
-    - generate-maven-settings-file:
-        settings-file: *maven-settings-file
-    - restore_cache:
-        keys:
-        - cache-dependencies-{{ checksum "pom.xml" }}
-    - run: *release
+      - attach_workspace:
+          at: ../
+      - run: mvn deploy -s /tools/m2/settings.xml -DskipTests -Dspotless.check.skip=true
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: cache-dependencies-{{ checksum "pom.xml" }}-deploy
   sonar:
     docker:
-    - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image-java11
-      auth:
-        username: _json_key
-        password: $DOCKER_PASSWORD
+      - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image-java11
+        auth:
+          username: _json_key
+          password: $DOCKER_PASSWORD
     environment:
       MAVEN_OPTS: -Xmx3G
     steps:
-    - checkout
-        - attach_workspace:
-        at: ../
-        - run: *sonar-scan
-  postBuild:
-    <<: *circleci-container-config
-
-    steps:
-    - run: *downstream_builds
+      - checkout
+      - attach_workspace:
+          at: ../
+      - run: *sonar-scan
 
 workflows:
   version: 2
@@ -218,26 +98,12 @@ workflows:
             - test
   build_test_deploy:
     jobs:
-    - test:
-        context: org-default-build
-    - deploy-artifactory:
-        context: org-default-build
-        requires:
-        - test
-        filters:
-          branches:
-            only: develop
-    - postBuild:
-        context: org-carbon
-        requires:
-        - deploy-artifactory
-        filters:
-          branches:
-            only: develop
-    - release:
-        context: org-default-build
-        requires:
-        - test
-        filters:
-          branches:
-            only: develop
+      - test:
+          context: org-carbon
+      - deploy-artifactory:
+          context: org-carbon
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
