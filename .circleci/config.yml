@@ -218,12 +218,26 @@ workflows:
             - test
   build_test_deploy:
     jobs:
-      - test:
-          context: org-carbon
-      - deploy-artifactory:
-          context: org-carbon
-          requires:
-            - test
-          filters:
-            branches:
-              only: master
+    - test:
+        context: org-default-build
+    - deploy-artifactory:
+        context: org-default-build
+        requires:
+        - test
+        filters:
+          branches:
+            only: develop
+    - postBuild:
+        context: org-carbon
+        requires:
+        - deploy-artifactory
+        filters:
+          branches:
+            only: develop
+    - release:
+        context: org-default-build
+        requires:
+        - test
+        filters:
+          branches:
+            only: develop
