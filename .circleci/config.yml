@@ -191,9 +191,9 @@ jobs:
       MAVEN_OPTS: -Xmx3G
     steps:
     - checkout
-        - attach_workspace:
+    - attach_workspace:
         at: ../
-        - run: *sonar-scan
+    - run: *sonar-scan
   postBuild:
     <<: *circleci-container-config
 
