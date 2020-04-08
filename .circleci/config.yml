@@ -27,7 +27,7 @@ aliases:
       git pull --no-edit
       git checkout develop
       mvn versions:use-releases
-      mvn gitflow:release-start gitflow:release-finish -Prelease -DpostReleaseGoals=deploy -DargLine=-Prelease,'!protoc' -B
+      mvn gitflow:release-start gitflow:release-finish -Prelease -DpostReleaseGoals=deploy -DargLine=-Prelease -B
     else
       echo "Skipping release"
     fi
@@ -124,46 +124,33 @@ commands:
 
 jobs:
   test:
-    docker:
-    - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image-java11
-      auth:
-        username: _json_key
-        password: $DOCKER_PASSWORD
+    <<: *java-container-config
     environment:
       MAVEN_OPTS: -Xmx3G
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - cache-dependencies-{{ checksum "pom.xml" }}-deploy
-            - cache-dependencies-{{ checksum "pom.xml" }}
-            - cache-dependencies-static
-      - run: mvn dependency:go-offline -s /tools/m2/settings.xml
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: cache-dependencies-{{ checksum "pom.xml" }}
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: cache-dependencies-static
-      # Cannot use -o because of snapshot dependencies. Using deploy &  -Dmaven.deploy.skip=true to download ALL necessary dependencies
-      - run: mvn deploy -s /tools/m2/settings.xml  -Dmaven.deploy.skip=true
-      - persist_to_workspace:
-          root: ../
-          paths:
-            - project
-            - .m2
-      - run:
-          name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/junit/ \;
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
+    - checkout
+    - generate-maven-settings-file:
+        settings-file: *maven-settings-file
+    - restore_cache:
+        keys:
+        - cache-dependencies-{{ checksum "pom.xml" }}
+    - run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
+    - save_cache:
+        paths:
+        - ~/.m2
+        key: cache-dependencies-{{ checksum "pom.xml" }}
+    # Cannot use -o because of snapshot dependencies. Using deploy &  -Dmaven.deploy.skip=true to download ALL necessary dependencies
+    - run: mvn verify
+    - run:
+        name: Save test results
+        command: |
+          mkdir -p ~/junit/
+          find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/junit/ \;
+        when: always
+    - store_test_results:
+        path: ~/junit
+    - store_artifacts:
+        path: ~/junit
   deploy-artifactory:
     <<: *java-container-config
     environment:
@@ -224,9 +211,9 @@ workflows:
               only: master
     jobs:
       - test:
-          context: org-carbon
+          context: org-default-build
       - sonar:
-          context: org-carbon
+          context: org-default-build
           requires:
             - test
   build_test_deploy:
