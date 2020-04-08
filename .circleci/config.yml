@@ -110,6 +110,18 @@ aliases:
   docker:
   - image: circleci/openjdk:8-jdk
 
+commands:
+  generate-maven-settings-file:
+    parameters:
+      settings-file:
+        type: string
+    steps:
+    - run:
+        name: Generate Maven Settings File
+        command: |
+          mkdir -p ~/.m2
+          echo -e << parameters.settings-file >> > ~/.m2/settings.xml
+
 jobs:
   test:
     docker:
