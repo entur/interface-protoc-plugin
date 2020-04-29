@@ -1,14 +1,17 @@
 package no.entur.protoc.interfaces;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.MessageLite;
 
 import no.entur.protoc.interfaces.package1.BottomLevel;
+import no.entur.protoc.interfaces.package1.BottomLevelI;
 import no.entur.protoc.interfaces.package1.MidLevelBuilderI;
 import no.entur.protoc.interfaces.package1.MidLevelI;
 import no.entur.protoc.interfaces.package2.EnumType;
@@ -28,15 +31,22 @@ public class InterfaceProtoPluginTest {
 
 		BottomLevel bottomLevel = builder.build();
 
+		BottomLevelI bottomLevelI = bottomLevel;
 		TopLevelI topLevelI = bottomLevel;
 		MidLevelI midLevelI = bottomLevel;
 		assertTopLevelFields(bottomLevel, topLevelI);
 		assertMidLevelFields(bottomLevel, midLevelI);
 		Assertions.assertEquals(bottomLevelStringVal, bottomLevel.getBottomLevelStringVal());
+
+		BottomLevel.InnerType innerType = bottomLevelI.getInnerTypeVal();
+		List<BottomLevel.InnerType> innerTypeRepeated = bottomLevelI.getInnerTypeRepeatedValList();
 	}
 
 	private void assertMidLevelFields(BottomLevel org, MidLevelI midLevelI) {
 		Assertions.assertEquals(org.getMidLevelStringVal(), midLevelI.getMidLevelStringVal());
+
+		MessageLite innerType = midLevelI.getInnerTypeVal();
+		List<? extends MessageLite> innerTypeRepeated = midLevelI.getInnerTypeRepeatedValList();
 	}
 
 	private void assertTopLevelFields(BottomLevel org, TopLevelI topLevelI) {
