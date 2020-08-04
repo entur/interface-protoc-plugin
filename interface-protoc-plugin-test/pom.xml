@@ -110,7 +110,7 @@
                         <configuration>
                             <pluginId>generate-interfaces</pluginId>
                             <pluginArtifact>
-                                no.entur:interface-protoc-plugin:${project.version}:exe:${os.detected.classifier}
+                                no.entur:interface-protoc-plugin:1.0-SNAPSHOT:exe:${os.detected.classifier}
                             </pluginArtifact>
                             <pluginParameter>-generate-interfaces -target=${generated.interface.directory}
                             </pluginParameter>
@@ -135,7 +135,6 @@
                             </protocPlugins>
                         </configuration>
                     </execution>
-
 
                 </executions>
             </plugin>
