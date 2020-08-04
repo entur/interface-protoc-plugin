@@ -3,7 +3,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    <name>Interface protoc plugin</name>
+    <description>Protoc plugin for generating interface hierarchies for generated java classes</description>
     <groupId>no.entur</groupId>
     <artifactId>interface-protoc-plugin-parent</artifactId>
     <packaging>pom</packaging>
@@ -55,6 +56,17 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>2.0.0</version>
+                    <configuration>
+                        <organizationName>Entur</organizationName>
+                        <inceptionYear>2019</inceptionYear>
+                        <licenseFile>LICENSE.txt</licenseFile>
+                        <licenseName>eupl_v1_1</licenseName>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.1</version>
@@ -86,9 +98,47 @@
                         <allowSnapshots>false</allowSnapshots>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <configuration>
+                        <includes>
+                            <include>**/*.java</include>
+                        </includes>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>check-license-header</id>
+                            <goals>
+                                <goal>update-file-header</goal>
+                            </goals>
+                            <phase>initialize</phase>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
+    <url>https://github.com/entur/interface-protoc-plugin</url>
+    <organization>
+        <name>Entur AS</name>
+        <url>http://www.entur.org/</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>EUPL-1.2 with modifications</name>
+            <url>https://joinup.ec.europa.eu/software/page/eupl</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Erlend Nilsen</name>
+            <email>erled.nilsen@entur.org</email>
+            <organization>Entur</organization>
+            <organizationUrl>http://www.entur.org</organizationUrl>
+        </developer>
+    </developers>
     <dependencies>
         <dependency>
             <groupId>com.salesforce.servicelibs</groupId>
