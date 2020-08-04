@@ -29,14 +29,6 @@
                         <target>${java.version}</target>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>com.amashchenko.maven.plugin</groupId>
-                    <artifactId>gitflow-maven-plugin</artifactId>
-                    <version>1.14.0</version>
-                    <configuration>
-                        <allowSnapshots>false</allowSnapshots>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -146,6 +138,14 @@
 
 
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>1.14.0</version>
+                <configuration>
+                    <allowSnapshots>false</allowSnapshots>
+                </configuration>
             </plugin>
         </plugins>
     </build>
