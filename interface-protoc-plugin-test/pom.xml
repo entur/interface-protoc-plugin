@@ -29,7 +29,14 @@
                         <target>${java.version}</target>
                     </configuration>
                 </plugin>
-
+                <plugin>
+                    <groupId>com.amashchenko.maven.plugin</groupId>
+                    <artifactId>gitflow-maven-plugin</artifactId>
+                    <version>1.14.0</version>
+                    <configuration>
+                        <allowSnapshots>false</allowSnapshots>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -110,7 +117,8 @@
                         </goals>
                         <configuration>
                             <pluginId>generate-interfaces</pluginId>
-                            <pluginArtifact>no.entur:interface-protoc-plugin:1.0-SNAPSHOT:exe:${os.detected.classifier}
+                            <pluginArtifact>
+                                no.entur:interface-protoc-plugin:${project.version}:exe:${os.detected.classifier}
                             </pluginArtifact>
                             <pluginParameter>-generate-interfaces -target=${generated.interface.directory}
                             </pluginParameter>
