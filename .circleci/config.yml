@@ -9,7 +9,7 @@ aliases:
       git checkout master
       git pull --no-edit
       git checkout develop
-      mvn gitflow:release-start gitflow:release-finish -Prelease -DpostReleaseGoals=deploy -DargLine=-Prelease -B
+      mvn gitflow:release-start gitflow:release-finish -Prelease -DpostReleaseGoals=deploy -DargLine='-Prelease -DskipTests' -B
       git checkout master
       git pull --no-edit
       mvn deploy -DskipTests -Pentur-maven-central-local
