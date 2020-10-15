@@ -8,7 +8,7 @@
     <groupId>no.entur</groupId>
     <artifactId>interface-protoc-plugin-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.2</version>
     <modules>
         <module>interface-protoc-plugin</module>
         <module>interface-protoc-plugin-test</module>
@@ -54,17 +54,6 @@
                         <inceptionYear>2019</inceptionYear>
                         <licenseFile>LICENSE.txt</licenseFile>
                         <licenseName>eupl_v1_1</licenseName>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <version>2.0.0</version>
-                    <configuration>
-                        <organizationName>Entur</organizationName>
-                        <inceptionYear>2019</inceptionYear>
-                        <licenseFile>LICENSE.txt</licenseFile>
-                        <licenseName>eupl_v1_1</licenseName>
                         <includes>
                             <include>**/*.java</include>
                         </includes>
@@ -84,6 +73,7 @@
                     <artifactId>gitflow-maven-plugin</artifactId>
                     <version>1.14.0</version>
                     <configuration>
+                        <verbose>true</verbose>
                         <allowSnapshots>false</allowSnapshots>
                         <commitMessagePrefix>[ci skip]</commitMessagePrefix>
                     </configuration>
