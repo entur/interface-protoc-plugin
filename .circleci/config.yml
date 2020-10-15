@@ -1,41 +1,24 @@
 version: 2.1
 aliases:
-  - &downstream_builds
-    name: Trigger downstream builds
-    command: |
-      echo 'export CIRCLE_API_TOKEN="$CIRCLE_API_USER_TOKEN"' >> $BASH_ENV
-      /tools/downstream_single_trigger.sh "gh/entur/abt-protobuf" "develop"
-
-  - &sonar-scan
-    command: |
-      mvn verify sonar:sonar \
-        -Dsonar.organization=${SONAR_ORG} \
-        -Dsonar.projectKey=entur_${CIRCLE_PROJECT_REPONAME} \
-        -Dsonar.projectName=${CIRCLE_PROJECT_REPONAME} \
-        -Dsonar.host.url=https://sonarcloud.io \
-        -Dsonar.login=${ENTUR_SONAR_PASSWORD}
-
   - &release
     name: Release
     command: |
-      if [ "$(git log -1 --pretty=%B)" == "Start release" ]
-      then
-        echo "Start release"
-        git config --global user.email "circleci@entur.no"
-        git config --global user.name "circleci"
-        git checkout master
-        git pull --no-edit
-        git checkout develop
-        mvn versions:use-releases
-        mvn gitflow:release-start gitflow:release-finish -Prelease -DpostReleaseGoals=deploy -DargLine=-Prelease -B
-      else
-        echo "Skipping release"
-      fi
+      echo "Start release"
+      git config --global user.email "circleci@entur.no"
+      git config --global user.name "circleci"
+      git checkout master
+      git pull --no-edit
+      git checkout develop
+      mvn gitflow:release-start gitflow:release-finish -Prelease -DpostReleaseGoals=deploy -DargLine=-Prelease -B
+      git checkout master
+      git pull --no-edit
+      mvn deploy -DskipTests -Pentur-maven-central-local
 
   - &import_gpg_key
     name: Configure GPG private key for signing project artifacts in OSS Sonatype
     command: |
       echo $SONATYPE_GPG_KEY_BASE64 | base64 --decode | gpg --batch --no-tty --import --yes
+
 
   - &maven-settings-file
       "\"<settings xsi:schemaLocation='http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd' xmlns='http://maven.apache.org/SETTINGS/1.1.0'
@@ -47,15 +30,20 @@ aliases:
                    <id>ossrh</id>
                  </server>
               <server>
-                <username>$entur_artifactory_user</username>
-                <password>$entur_artifactory_password</password>
+                <username>$ARTIFACTORY_USER</username>
+                <password>$ARTIFACTORY_PASSWORD</password>
                 <id>central</id>
               </server>
               <server>
-                <username>$entur_artifactory_user</username>
-                <password>$entur_artifactory_password</password>
+                <username>$ARTIFACTORY_USER</username>
+                <password>$ARTIFACTORY_PASSWORD</password>
                 <id>snapshots</id>
               </server>
+              <server>
+                <username>$ARTIFACTORY_USER</username>
+                <password>$ARTIFACTORY_PASSWORD</password>
+                <id>entur-maven-central-local</id>
+                </server>
             </servers>
             <profiles>
         <profile>
@@ -99,16 +87,19 @@ aliases:
             </activeProfiles>
           </settings>\""
 
-  - &circleci-container-config
-    docker:
-      - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image
-        auth:
-          username: _json_key
-          password: $DOCKER_PASSWORD
-
   - &java-container-config
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:11-jdk
+
+  - &sonar-scan
+    name: Sonar
+    command: |
+      mvn sonar:sonar \
+        -Dsonar.projectKey=entur_${CIRCLE_PROJECT_REPONAME} \
+        -Dsonar.organization=enturas-github \
+        -Dsonar.projectName=${CIRCLE_PROJECT_REPONAME} \
+        -Dsonar.host.url=https://sonarcloud.io \
+        -Dsonar.login=${ENTUR_SONAR_PASSWORD}
 
 commands:
   generate-maven-settings-file:
@@ -126,48 +117,12 @@ jobs:
   test:
     <<: *java-container-config
     environment:
-      MAVEN_OPTS: -Xmx3G
-    steps:
-      - checkout
-      - generate-maven-settings-file:
-          settings-file: *maven-settings-file
-      - restore_cache:
-          keys:
-            - cache-dependencies-{{ checksum "pom.xml" }}
-      - run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: cache-dependencies-{{ checksum "pom.xml" }}
-      # Cannot use -o because of snapshot dependencies. Using deploy &  -Dmaven.deploy.skip=true to download ALL necessary dependencies
-      - run: mvn verify
-      - run:
-          name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/junit/ \;
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-  deploy-artifactory:
-    <<: *java-container-config
-    environment:
       MAVEN_OPTS: -Xmx1G -Xms128m
     steps:
       - checkout
       - generate-maven-settings-file:
           settings-file: *maven-settings-file
-      - restore_cache:
-          keys:
-            - cache-dependencies-{{ checksum "pom.xml" }}
-      - run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: cache-dependencies-static
-      - run: mvn deploy -DskipTests -Dspotless.check.skip=true
+      - run: mvn verify
   release:
     <<: *java-container-config
     environment:
@@ -177,22 +132,14 @@ jobs:
       - run: *import_gpg_key
       - generate-maven-settings-file:
           settings-file: *maven-settings-file
-      - restore_cache:
-          keys:
-            - cache-dependencies-{{ checksum "pom.xml" }}
       - run: *release
   sonar:
-    docker:
-      - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image-java11
-        auth:
-          username: _json_key
-          password: $DOCKER_PASSWORD
-    environment:
-      MAVEN_OPTS: -Xmx3G
+    <<: *java-container-config
     steps:
       - checkout
-      - attach_workspace:
-          at: ../
+      - generate-maven-settings-file:
+          settings-file: *maven-settings-file
+      - run: mvn verify
       - run: *sonar-scan
   postBuild:
     <<: *circleci-container-config
@@ -202,38 +149,10 @@ jobs:
 
 workflows:
   version: 2
-  nightly-sonar-analysis:
-    triggers:
-      - schedule:
-          cron: "0 2 * * *"
-          filters:
-            branches:
-              only: master
-    jobs:
-      - test:
-          context: global
-      - sonar:
-          context: global
-          requires:
-            - test
   build_test_deploy:
     jobs:
       - test:
           context: global
-      - deploy-artifactory:
-          context: global
-          requires:
-            - test
-          filters:
-            branches:
-              only: develop
-      - postBuild:
-          context: org-carbon
-          requires:
-            - deploy-artifactory
-          filters:
-            branches:
-              only: develop
       - release:
           context: global
           requires:
@@ -241,3 +160,13 @@ workflows:
           filters:
             branches:
               only: develop
+  nightly-sonar-analysis:
+    triggers:
+      - schedule:
+          cron: "0 2 * * *"
+          filters:
+            branches:
+              only: develop
+    jobs:
+      - sonar:
+          context: global
