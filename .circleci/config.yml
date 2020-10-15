@@ -141,11 +141,6 @@ jobs:
           settings-file: *maven-settings-file
       - run: mvn verify
       - run: *sonar-scan
-  postBuild:
-    <<: *circleci-container-config
-
-    steps:
-      - run: *downstream_builds
 
 workflows:
   version: 2
