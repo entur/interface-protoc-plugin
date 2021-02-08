@@ -149,6 +149,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>no.entur</groupId>
+            <artifactId>interface-protoc-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 
 </project>
