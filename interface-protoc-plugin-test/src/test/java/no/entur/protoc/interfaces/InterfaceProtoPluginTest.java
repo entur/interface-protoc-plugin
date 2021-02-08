@@ -47,6 +47,9 @@ public class InterfaceProtoPluginTest {
 
 		MessageLite innerType = midLevelI.getInnerTypeVal();
 		List<? extends MessageLite> innerTypeRepeated = midLevelI.getInnerTypeRepeatedValList();
+
+		Assertions.assertEquals(org.hasTopLevelMessageVal(), midLevelI.hasTopLevelMessageVal());
+
 	}
 
 	private void assertTopLevelFields(BottomLevel org, TopLevelI topLevelI) {
@@ -88,6 +91,8 @@ public class InterfaceProtoPluginTest {
 		Assertions.assertEquals(org.getTopLevelRepeatedStringValList(), topLevelI.getTopLevelRepeatedStringValList());
 		Assertions.assertEquals(org.getTopLevelRepeatedMessageValList().stream().map(SimpleType::getSimpleTypeStringVal).collect(Collectors.toList()),
 				org.getTopLevelRepeatedMessageValList().stream().map(SimpleType::getSimpleTypeStringVal).collect(Collectors.toList()));
+
+		Assertions.assertEquals(org.hasTopLevelMessageVal(), topLevelI.hasTopLevelMessageVal());
 	}
 
 	private void populateMidLevelFields(MidLevelBuilderI builder) {

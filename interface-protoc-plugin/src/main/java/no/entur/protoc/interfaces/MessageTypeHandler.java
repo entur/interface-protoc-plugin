@@ -199,12 +199,21 @@ public class MessageTypeHandler {
 					returnType = ClassName.get(MessageLite.class);
 				} else {
 					returnType = type;
+
 				}
 				MethodSpec getMethod = MethodSpec.methodBuilder("get" + fieldAsCamelCase)
 						.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
 						.returns(returnType)
 						.build();
 				methods.add(getMethod);
+
+				if (field.getType() == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE) {
+					MethodSpec hasMethod = MethodSpec.methodBuilder("has" + fieldAsCamelCase)
+							.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+							.returns(Boolean.TYPE)
+							.build();
+					methods.add(hasMethod);
+				}
 			}
 		}
 		String interfaceName = getInterfaceName();
