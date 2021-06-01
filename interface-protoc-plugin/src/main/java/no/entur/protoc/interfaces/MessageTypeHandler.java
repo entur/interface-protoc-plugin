@@ -184,6 +184,11 @@ public class MessageTypeHandler {
 			TypeName type = mapType(field, context.useInterfacesForLocalReturnTypes);
 
 			if (field.getLabel() == DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED) {
+				if (isMapEntry(field)) {
+					// Ignore Map entries for now. Generated Java code does not result in getXXXMapEntryList, but instead getXXXMap
+					continue;
+				}
+
 				TypeName typeArgument = getGetterListTypeArgument(field, type);
 
 				ParameterizedTypeName listType = ParameterizedTypeName.get(ClassName.get(List.class), typeArgument);
@@ -227,6 +232,11 @@ public class MessageTypeHandler {
 
 		}
 		writeInterface(interfaceName, methods, baseType);
+	}
+
+	private boolean isMapEntry(DescriptorProtos.FieldDescriptorProto field) {
+		// TODO this may match non map inner types with name ending with 'Entry'. Find more robust way of detecting maps
+		return isInnerMessage(field.getTypeName()) && field.getTypeName().endsWith("Entry");
 	}
 
 	private boolean isInnerTypeInBaseType(DescriptorProtos.FieldDescriptorProto field) {
