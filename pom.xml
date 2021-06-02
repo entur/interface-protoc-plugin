@@ -76,6 +76,7 @@
                         <verbose>true</verbose>
                         <allowSnapshots>false</allowSnapshots>
                         <commitMessagePrefix>[ci skip]</commitMessagePrefix>
+                        <skipTestProject>true</skipTestProject>
                     </configuration>
                 </plugin>
                 <plugin>
