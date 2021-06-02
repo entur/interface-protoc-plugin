@@ -8,7 +8,7 @@ option java_package = "no.entur.protoc.interfaces.package2";
 import "xsd.proto";
 
 message TopLevel {
- // Add every supported message type to interface type to make sure code generation supports all
+  // Add every supported message type to interface type to make sure code generation supports all
   double top_level_double_val = 1;
   float top_level_float_val = 2;
   int64 top_level_int64_val = 3;
@@ -25,10 +25,11 @@ message TopLevel {
   sint64 top_level_sint64_val = 14;
   SimpleType top_level_message_val = 15;
   EnumType top_level_enum_val = 16;
+  map<string, bytes> top_level_map = 17;
 
   oneof TopLevelOneOf {
-    string top_level_one_of_string_val= 51;
-    double top_level_one_of_double_val= 52;
+    string top_level_one_of_string_val = 51;
+    double top_level_one_of_double_val = 52;
   }
 
   repeated double top_level_repeated_double_val = 101;
@@ -55,6 +56,6 @@ message SimpleType {
 }
 
 enum EnumType {
-   ENUM_VALUE_1 = 0;
-   ENUM_VALUE_2 = 1;
+  ENUM_VALUE_1 = 0;
+  ENUM_VALUE_2 = 1;
 }
