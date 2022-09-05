@@ -115,11 +115,9 @@
                     </plugin>
 
                     <plugin>
-                        <groupId>org.xolstice.maven.plugins</groupId>
+                        <groupId>dev.cookiecode</groupId>
                         <artifactId>protobuf-maven-plugin</artifactId>
-                        <!-- TODO custom build for plugin based on https://github.com/xolstice/protobuf-maven-plugin/pull/67. Required
-                 to get custom interface-protoc-plugin to run with java lite plugin-->
-                        <version>0.7.0.ENTUR-SNAPSHOT</version>
+                        <version>${protobuf-maven-plugin.version}</version>
                         <configuration>
                             <protocArtifact>com.google.protobuf:protoc:${proto.version}:exe:${os.detected.classifier}
                             </protocArtifact>
