@@ -5,7 +5,7 @@
     <parent>
         <artifactId>interface-protoc-plugin-parent</artifactId>
         <groupId>no.entur</groupId>
-        <version>1.5</version>
+        <version>1.6</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -46,7 +46,7 @@
         </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>org.xolstice.maven.plugins</groupId>
+                <groupId>dev.cookiecode</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>${protobuf-maven-plugin.version}</version>
                 <configuration>
