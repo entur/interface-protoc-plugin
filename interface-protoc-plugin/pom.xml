@@ -5,7 +5,7 @@
     <parent>
         <artifactId>interface-protoc-plugin-parent</artifactId>
         <groupId>no.entur</groupId>
-        <version>1.8-SNAPSHOT</version>
+        <version>1.8</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -98,7 +98,7 @@
             <plugin>
                 <groupId>com.salesforce.servicelibs</groupId>
                 <artifactId>canteen-maven-plugin</artifactId>
-                <version>1.0.0</version>
+                <version>1.1.0</version>
                 <executions>
                     <execution>
                         <goals>
