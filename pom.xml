@@ -8,7 +8,7 @@
     <groupId>no.entur</groupId>
     <artifactId>interface-protoc-plugin-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.8</version>
+    <version>1.9</version>
     <modules>
         <module>interface-protoc-plugin</module>
         <module>interface-protoc-plugin-test</module>
@@ -17,7 +17,7 @@
         <java.version>1.8</java.version>
         <protobuf-maven-plugin.version>0.7.1</protobuf-maven-plugin.version>
         <proto.version>3.23.2</proto.version>
-        <spotless.version>1.23.1</spotless.version>
+        <spotless.version>1.31.3</spotless.version>
         <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
