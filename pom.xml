@@ -16,7 +16,7 @@
     <properties>
         <java.version>1.8</java.version>
         <protobuf-maven-plugin.version>0.7.1</protobuf-maven-plugin.version>
-        <proto.version>3.9.0</proto.version>
+        <proto.version>3.23.2</proto.version>
         <spotless.version>1.23.1</spotless.version>
         <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
@@ -251,7 +251,7 @@
         <dependency>
             <groupId>com.salesforce.servicelibs</groupId>
             <artifactId>jprotoc</artifactId>
-            <version>1.0.1</version>
+            <version>1.2.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -261,7 +261,7 @@
         <dependency>
             <groupId>com.squareup</groupId>
             <artifactId>javapoet</artifactId>
-            <version>1.11.1</version>
+            <version>1.13.0</version>
         </dependency>
     </dependencies>
 </project>
