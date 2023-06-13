@@ -8,7 +8,7 @@
     <groupId>no.entur</groupId>
     <artifactId>interface-protoc-plugin-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.9</version>
+    <version>1.10</version>
     <modules>
         <module>interface-protoc-plugin</module>
         <module>interface-protoc-plugin-test</module>
