@@ -5,7 +5,7 @@
     <parent>
         <artifactId>interface-protoc-plugin-parent</artifactId>
         <groupId>no.entur</groupId>
-        <version>1.14</version>
+        <version>1.15</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -50,7 +50,7 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-compiler-plugin</artifactId>
-                            <version>3.8.1</version>
+                            <version>3.11.0</version>
                             <configuration>
                                 <source>${java.version}</source>
                                 <target>${java.version}</target>
@@ -62,7 +62,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>3.0.0</version>
+                        <version>3.4.0</version>
                         <executions>
                             <execution>
                                 <phase>generate-sources</phase>
@@ -174,7 +174,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.5.2</version>
+            <version>5.9.3</version>
             <scope>test</scope>
         </dependency>
 

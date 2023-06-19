@@ -8,7 +8,7 @@
     <groupId>no.entur</groupId>
     <artifactId>interface-protoc-plugin-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.14</version>
+    <version>1.15</version>
     <modules>
         <module>interface-protoc-plugin</module>
         <module>interface-protoc-plugin-test</module>
@@ -18,8 +18,8 @@
         <protobuf-maven-plugin.version>0.7.1</protobuf-maven-plugin.version>
         <proto.version>3.23.2</proto.version>
         <spotless.version>1.31.3</spotless.version>
-        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
@@ -48,7 +48,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.0.0</version>
+                    <version>2.1.0</version>
                     <configuration>
                         <organizationName>Entur</organizationName>
                         <inceptionYear>2019</inceptionYear>
@@ -82,7 +82,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.3.0</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -96,7 +96,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.11.0</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
@@ -221,7 +221,7 @@
                             <execution>
                                 <id>attach-sources</id>
                                 <goals>
-                                    <goal>jar</goal>
+                                    <goal>jar-no-fork</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -256,7 +256,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.9</version>
+            <version>3.12.0</version>
         </dependency>
         <dependency>
             <groupId>com.squareup</groupId>
