@@ -18,7 +18,7 @@ import com.salesforce.jprotoc.ProtoTypeMap;
 import xsd.Xsd;
 
 public class InterfaceProtocContext {
-
+	public final boolean generateJavalite;
 	public final String targetFolder;
 	public final ProtoTypeMap protoTypeMap;
 	public final Map<String, DescriptorProtos.DescriptorProto> baseTypes;
@@ -27,9 +27,9 @@ public class InterfaceProtocContext {
 	// Disabled interfaces as return type for generated classes at it requires use of wildcard types which is strongly discourage + does not work with esper.
 	public final boolean useInterfacesForLocalReturnTypes = false;
 
-	public InterfaceProtocContext(String targetFolder, PluginProtos.CodeGeneratorRequest request) {
+	public InterfaceProtocContext(String targetFolder, PluginProtos.CodeGeneratorRequest request, boolean generateJavalite) {
 		this.targetFolder = targetFolder;
-
+		this.generateJavalite = generateJavalite;
 		this.protoTypeMap = ProtoTypeMap.of(request.getProtoFileList());
 		this.baseTypes = getAllBaseTypes(request);
 		this.messageTypes = request.getProtoFileList()
