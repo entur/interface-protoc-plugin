@@ -14,9 +14,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import com.google.protobuf.compiler.PluginProtos;
-
 import xsd.Xsd;
+
+import com.google.protobuf.compiler.PluginProtos;
 
 public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 

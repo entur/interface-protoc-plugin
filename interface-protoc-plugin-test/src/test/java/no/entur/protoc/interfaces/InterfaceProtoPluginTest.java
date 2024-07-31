@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.google.protobuf.ByteString;
-import com.google.protobuf.MessageLite;
+import com.google.protobuf.Message;
 
 import no.entur.protoc.interfaces.package1.BottomLevel;
 import no.entur.protoc.interfaces.package1.BottomLevelI;
@@ -45,8 +45,8 @@ public class InterfaceProtoPluginTest {
 	private void assertMidLevelFields(BottomLevel org, MidLevelI midLevelI) {
 		Assertions.assertEquals(org.getMidLevelStringVal(), midLevelI.getMidLevelStringVal());
 
-		MessageLite innerType = midLevelI.getInnerTypeVal();
-		List<? extends MessageLite> innerTypeRepeated = midLevelI.getInnerTypeRepeatedValList();
+		Message innerType = midLevelI.getInnerTypeVal();
+		List<? extends Message> innerTypeRepeated = midLevelI.getInnerTypeRepeatedValList();
 
 		Assertions.assertEquals(org.hasTopLevelMessageVal(), midLevelI.hasTopLevelMessageVal());
 

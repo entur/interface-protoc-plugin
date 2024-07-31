@@ -11,10 +11,12 @@ import javax.lang.model.element.Modifier;
 
 import org.apache.commons.lang3.StringUtils;
 
+import xsd.Xsd;
+
 import com.google.protobuf.ByteString;
 import com.google.protobuf.DescriptorProtos;
-import com.google.protobuf.MessageLite;
-import com.google.protobuf.MessageLiteOrBuilder;
+import com.google.protobuf.Message;
+import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.compiler.PluginProtos;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
@@ -23,8 +25,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
-
-import xsd.Xsd;
 
 /**
  * Generate interfaces for a proto message and create CodeGeneratorResponse.File to add it to generated java class.
@@ -164,7 +164,7 @@ public class MessageTypeHandler {
 			String baseTypeBuilderInterfaceName = getBuilderInterfaceName(getBaseTypeMessageName());
 			baseType = getBaseType(baseTypeBuilderInterfaceName);
 		} else {
-			baseType = ClassName.get(MessageLiteOrBuilder.class);
+			baseType = ClassName.get(MessageOrBuilder.class);
 		}
 
 		writeInterface(builderInterfaceName, methods, baseType);
@@ -201,7 +201,7 @@ public class MessageTypeHandler {
 				TypeName returnType;
 				// Cannot use exact return type for inner types as these are generated per message and type is not inherited
 				if (isInnerTypeInBaseType(field)) {
-					returnType = ClassName.get(MessageLite.class);
+					returnType = ClassName.get(Message.class);
 				} else {
 					returnType = type;
 
@@ -228,7 +228,7 @@ public class MessageTypeHandler {
 			String baseTypeInterfaceName = getInterfaceName(getBaseTypeMessageName());
 			baseType = getBaseType(baseTypeInterfaceName);
 		} else {
-			baseType = ClassName.get(MessageLite.class);
+			baseType = ClassName.get(Message.class);
 
 		}
 		writeInterface(interfaceName, methods, baseType);
@@ -332,7 +332,7 @@ public class MessageTypeHandler {
 		boolean useWildcardGenericType = context.useInterfacesForLocalReturnTypes && isInterfacedField(field);
 		if (isInnerTypeInBaseType(field)) {
 			// Cannot use exact return type for inner types as these are generated per message and type is not inherited
-			typeArgument = WildcardTypeName.subtypeOf(ClassName.get(MessageLite.class));
+			typeArgument = WildcardTypeName.subtypeOf(ClassName.get(Message.class));
 		} else if (useWildcardGenericType) {
 			typeArgument = WildcardTypeName.subtypeOf(type.box());
 		} else if (type.isPrimitive()) {
