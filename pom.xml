@@ -19,7 +19,7 @@
         <proto.version>4.28.2</proto.version>
         <spotless.version>1.31.3</spotless.version>
         <guava.version>33.3.1-jre</guava.version>
-        <maven-javadoc-plugin.version>3.10.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.10.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
         <maven.compiler.source>8</maven.compiler.source>
