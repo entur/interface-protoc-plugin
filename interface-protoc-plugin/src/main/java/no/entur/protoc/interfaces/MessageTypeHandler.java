@@ -373,10 +373,14 @@ public class MessageTypeHandler {
 		if (javaTypeName != null) {
 			String[] parts = javaTypeName.split("\\.");
 			String className = parts[parts.length - 1];
-			String packageName = javaTypeName.replace("." + className, "");
+			// Remove class name part of full java type to get package name
+			int startOfClassName = javaTypeName.lastIndexOf("." + className);
+			String packageName = javaTypeName.substring(0, startOfClassName);
+
 			if (packageName.startsWith(".")) {
 				packageName = packageName.substring(1);
 			}
+
 			return packageName;
 		}
 		return null;
