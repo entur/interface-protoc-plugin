@@ -5,18 +5,15 @@
     <parent>
         <artifactId>interface-protoc-plugin-parent</artifactId>
         <groupId>no.entur</groupId>
-        <version>1.18-SNAPSHOT</version>
+        <version>0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>interface-protoc-plugin-test</artifactId>
-
-
+    <version>0.1-SNAPSHOT</version>
     <properties>
         <generated.interface.directory>${project.build.directory}/generated-sources/proto-interfaces
         </generated.interface.directory>
     </properties>
-
     <profiles>
         <profile>
             <id>release</id>
