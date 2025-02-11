@@ -5,18 +5,14 @@
     <parent>
         <artifactId>interface-protoc-plugin-parent</artifactId>
         <groupId>no.entur</groupId>
-        <version>1.18-SNAPSHOT</version>
+        <version>0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
+    <version>0.1-SNAPSHOT</version>
     <artifactId>interface-protoc-plugin</artifactId>
-
     <build>
-
         <pluginManagement>
-
             <plugins>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
