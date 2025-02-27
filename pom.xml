@@ -61,17 +61,6 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>com.amashchenko.maven.plugin</groupId>
-                    <artifactId>gitflow-maven-plugin</artifactId>
-                    <version>1.21.0</version>
-                    <configuration>
-                        <verbose>true</verbose>
-                        <allowSnapshots>false</allowSnapshots>
-                        <commitMessagePrefix>[ci skip]</commitMessagePrefix>
-                        <skipTestProject>true</skipTestProject>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
                     <version>3.3.1</version>
@@ -106,7 +95,6 @@
                                 <goal>check</goal>
                             </goals>
                         </execution>
-
                     </executions>
                 </plugin>
             </plugins>
@@ -153,20 +141,7 @@
         </snapshotRepository>
     </distributionManagement>
     <profiles>
-        <profile>
-            <id>entur-maven-central-local</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <distributionManagement>
-                <repository>
-                    <id>entur-maven-central-local</id>
-                    <name>Entur maven central local</name>
-                    <url>https://entur2.jfrog.io/entur2/entur-maven-central-release-local</url>
-                </repository>
-            </distributionManagement>
-        </profile>
-        <profile>
+       <profile>
             <id>release</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
