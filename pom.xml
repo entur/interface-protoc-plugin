@@ -27,6 +27,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
+    <scm>
+        <connection>scm:git:ssh://git@github.com/entur/interface-protoc-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/entur/interface-protoc-plugin.git</developerConnection>
+        <url>https://github.com/entur/interface-protoc-plugin/tree/master</url>
+        <tag>HEAD</tag>
+    </scm>
     <build>
         <extensions>
             <extension>
