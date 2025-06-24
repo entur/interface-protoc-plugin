@@ -1,15 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>interface-protoc-plugin-parent</artifactId>
         <groupId>no.entur</groupId>
+        <artifactId>interface-protoc-plugin-parent</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <version>0.1-SNAPSHOT</version>
     <artifactId>interface-protoc-plugin</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+            <version>1.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+            <version>1.9.0</version>
+        </dependency>
+    </dependencies>
     <build>
         <pluginManagement>
             <plugins>
@@ -31,7 +46,7 @@
                                 <file>../codestyle/jdt_codestyle.xml</file>
                                 <version>4.9.0</version>
                             </eclipse>
-                            <removeUnusedImports/>
+                            <removeUnusedImports></removeUnusedImports>
                             <importOrder>
                                 <file>../codestyle/jdt.importorder</file>
                             </importOrder>
@@ -46,8 +61,7 @@
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>${protobuf-maven-plugin.version}</version>
                 <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:${proto.version}:exe:${os.detected.classifier}
-                    </protocArtifact>
+                    <protocArtifact>com.google.protobuf:protoc:${proto.version}:exe:${os.detected.classifier}</protocArtifact>
                     <protoSourceRoot>${project.resources[0].directory}/proto</protoSourceRoot>
                     <attachProtoSources>false</attachProtoSources>
                 </configuration>
@@ -58,7 +72,6 @@
                             <goal>compile</goal>
                         </goals>
                     </execution>
-
                 </executions>
             </plugin>
             <!-- Shade dependencies into an uber jar -->
@@ -68,14 +81,13 @@
                 <version>3.6.0</version>
                 <executions>
                     <execution>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                     </execution>
                 </executions>
             </plugin>
-
             <!-- Populate the jar's manifest main class to make it executable -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -90,7 +102,6 @@
                     </archive>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>com.salesforce.servicelibs</groupId>
                 <artifactId>canteen-maven-plugin</artifactId>
@@ -105,7 +116,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>release</id>
@@ -121,10 +131,10 @@
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
-                                <phase>verify</phase>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <phase>verify</phase>
                                 <configuration>
                                     <passphrase>${env.SONATYPE_GPG_KEY_PASSWORD}</passphrase>
                                     <gpgArguments>
@@ -150,25 +160,4 @@
             </build>
         </profile>
     </profiles>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.17.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.squareup</groupId>
-            <artifactId>javapoet</artifactId>
-            <version>1.13.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-cli</groupId>
-            <artifactId>commons-cli</artifactId>
-            <version>1.9.0</version>
-        </dependency>
-
-    </dependencies>
-
-
 </project>
