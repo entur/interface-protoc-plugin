@@ -9,7 +9,6 @@
     <description>Protoc plugin for generating interface hierarchies for generated java classes</description>
     <modules>
         <module>interface-protoc-plugin</module>
-        <module>interface-protoc-plugin-test</module>
     </modules>
     <properties>
         <guava.version>33.4.0-jre</guava.version>
@@ -29,6 +28,17 @@
         <protobuf-maven-plugin.version>0.7.1</protobuf-maven-plugin.version>
         <spotless.version>1.31.3</spotless.version>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -283,6 +293,15 @@
         <tag>HEAD</tag>
     </scm>
     <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>interface-protoc-plugin-test</module>
+            </modules>
+        </profile>
         <profile>
             <id>publication</id>
             <properties>
