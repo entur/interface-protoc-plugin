@@ -260,7 +260,7 @@
             </extension>
         </extensions>
     </build>
-    <url>https://github.com/entur/netex-utils</url>
+    <url>https://github.com/entur/interface-protoc-plugin</url>
     <organization>
         <name>Entur AS</name>
         <url>http://www.entur.org/</url>

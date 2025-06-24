@@ -8,6 +8,8 @@
     </parent>
     <artifactId>interface-protoc-plugin-test</artifactId>
     <version>0.1-SNAPSHOT</version>
+    <name>Interface protoc plugin</name>
+    <description>Protoc plugin for generating interface hierarchies for generated java classes</description>
     <properties>
         <generated.interface.directory>${project.build.directory}/generated-sources/proto-interfaces</generated.interface.directory>
     </properties>
@@ -129,4 +131,5 @@
             </plugin>
         </plugins>
     </build>
+    <url>https://github.com/entur/interface-protoc-plugin</url>
 </project>
