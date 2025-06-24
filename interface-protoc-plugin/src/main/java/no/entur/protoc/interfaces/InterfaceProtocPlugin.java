@@ -1,5 +1,28 @@
 package no.entur.protoc.interfaces;
 
+/*-
+ * #%L
+ * interface-protoc-plugin
+ * %%
+ * Copyright (C) 2019 - 2025 Entur
+ * %%
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * #L%
+ */
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +66,7 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 	@Override
 	public List<PluginProtos.CodeGeneratorResponse.File> generateFiles(PluginProtos.CodeGeneratorRequest request) {
 		parseArgs(combineCommandLineArgsAndPluginParam(commandLineArgs, request.getParameter()));
-		context = new InterfaceProtocContext(targetFolder, request,generateJavalite );
+		context = new InterfaceProtocContext(targetFolder, request, generateJavalite);
 
 		List<MessageTypeHandler> messageTypeHandlers = request.getProtoFileList()
 				.stream()
@@ -92,8 +115,7 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 				"generate protoc code generation files to make protoc generate java messages that implement interfaces");
 		options.addOption(implementInterfacesOption);
 
-		Option javaliteOption = new Option("jl", "javalite", false,
-				"generate interfaces for javalite classes");
+		Option javaliteOption = new Option("jl", "javalite", false, "generate interfaces for javalite classes");
 		options.addOption(javaliteOption);
 
 		CommandLineParser parser = new DefaultParser();
@@ -116,6 +138,6 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 		}
 		generateInterfaces = cmd.hasOption(generateInterfacesOption.getOpt());
 		generateAddInterfaceCodeGenerationFiles = cmd.hasOption(implementInterfacesOption.getOpt());
-		generateJavalite=cmd.hasOption(javaliteOption.getOpt());
+		generateJavalite = cmd.hasOption(javaliteOption.getOpt());
 	}
 }

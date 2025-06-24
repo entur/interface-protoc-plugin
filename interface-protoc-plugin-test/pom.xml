@@ -1,179 +1,139 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>interface-protoc-plugin-parent</artifactId>
         <groupId>no.entur</groupId>
+        <artifactId>interface-protoc-plugin-parent</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>interface-protoc-plugin-test</artifactId>
     <version>0.1-SNAPSHOT</version>
+    <name>Interface protoc plugin</name>
+    <description>Protoc plugin for generating interface hierarchies for generated java classes</description>
     <properties>
-        <generated.interface.directory>${project.build.directory}/generated-sources/proto-interfaces
-        </generated.interface.directory>
+        <generated.interface.directory>${project.build.directory}/generated-sources/proto-interfaces</generated.interface.directory>
     </properties>
-    <profiles>
-        <profile>
-            <id>release</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>default-testCompile</id>
-                                <phase>none</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-compiler-plugin</artifactId>
-                            <version>3.13.0</version>
-                            <configuration>
-                                <source>${java.version}</source>
-                                <target>${java.version}</target>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>3.6.0</version>
-                        <executions>
-                            <execution>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>add-source</goal>
-                                </goals>
-                                <configuration>
-                                    <sources>
-                                        <source>${generated.interface.directory}</source>
-                                    </sources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.diffplug.spotless</groupId>
-                        <artifactId>spotless-maven-plugin</artifactId>
-                        <configuration>
-                            <java>
-                                <eclipse>
-                                    <file>../codestyle/jdt_codestyle.xml</file>
-                                    <version>4.9.0</version>
-                                </eclipse>
-                                <removeUnusedImports/>
-                                <importOrder>
-                                    <file>../codestyle/jdt.importorder</file>
-                                </importOrder>
-                            </java>
-                        </configuration>
-                    </plugin>
-
-                    <!-- TODO protobuf-maven-plugin fails to create the necessary protoc-plugins dir. fix plugin. -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>protocDir</id>
-                                <phase>generate-sources</phase>
-                                <configuration>
-                                    <target>
-                                        <mkdir dir="${project.build.directory}/protoc-plugins"/>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>io.github.ascopes</groupId>
-                        <artifactId>protobuf-maven-plugin</artifactId>
-                        <version>${protobuf-maven-plugin.version}</version>
-                        <configuration>
-                            <protocVersion>${proto.version}</protocVersion>
-                            <sourceDirectories>
-                                <sourceDirectory>${project.resources[0].directory}/proto</sourceDirectory>
-                            </sourceDirectories>
-
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>generate-interfaces</id>
-                                <goals>
-                                    <goal>generate</goal>
-                                </goals>
-                                <configuration>
-
-                                    <binaryMavenPlugins>
-                                        <binaryMavenPlugin>
-                                            <groupId>no.entur</groupId>
-                                            <artifactId>interface-protoc-plugin</artifactId>
-                                            <version>${project.version}</version>
-                                            <options>-generate-interfaces -target=${generated.interface.directory}</options>
-                                        </binaryMavenPlugin>
-                                    </binaryMavenPlugins>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>compile-with-interfaces</id>
-                                <goals>
-                                    <goal>generate</goal>
-                                </goals>
-                                <configuration>
-                                    <binaryMavenPlugins>
-                                        <binaryMavenPlugin>
-                                            <groupId>no.entur</groupId>
-                                            <artifactId>interface-protoc-plugin</artifactId>
-                                            <version>${project.version}</version>
-                                            <options>-implement-interfaces</options>
-                                        </binaryMavenPlugin>
-                                    </binaryMavenPlugins>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-
     <dependencies>
-
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sources>
+                                <source>${generated.interface.directory}</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <configuration>
+                    <java>
+                        <eclipse>
+                            <file>../codestyle/jdt_codestyle.xml</file>
+                            <version>4.9.0</version>
+                        </eclipse>
+                        <removeUnusedImports></removeUnusedImports>
+                        <importOrder>
+                            <file>../codestyle/jdt.importorder</file>
+                        </importOrder>
+                    </java>
+                </configuration>
+            </plugin>
+            <!-- TODO protobuf-maven-plugin fails to create the necessary protoc-plugins dir. fix plugin. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>protocDir</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/protoc-plugins"></mkdir>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.github.ascopes</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>${protobuf-maven-plugin.version}</version>
+                <configuration>
+                    <protocVersion>${proto.version}</protocVersion>
+                    <sourceDirectories>
+                        <sourceDirectory>${project.resources[0].directory}/proto</sourceDirectory>
+                    </sourceDirectories>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-interfaces</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <binaryMavenPlugins>
+                                <binaryMavenPlugin>
+                                    <groupId>no.entur</groupId>
+                                    <artifactId>interface-protoc-plugin</artifactId>
+                                    <version>${project.version}</version>
+                                    <options>-generate-interfaces -target=${generated.interface.directory}</options>
+                                </binaryMavenPlugin>
+                            </binaryMavenPlugins>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>compile-with-interfaces</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <binaryMavenPlugins>
+                                <binaryMavenPlugin>
+                                    <groupId>no.entur</groupId>
+                                    <artifactId>interface-protoc-plugin</artifactId>
+                                    <version>${project.version}</version>
+                                    <options>-implement-interfaces</options>
+                                </binaryMavenPlugin>
+                            </binaryMavenPlugins>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <url>https://github.com/entur/interface-protoc-plugin</url>
 </project>
