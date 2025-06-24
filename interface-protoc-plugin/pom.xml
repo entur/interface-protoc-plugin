@@ -8,6 +8,8 @@
     </parent>
     <artifactId>interface-protoc-plugin</artifactId>
     <version>0.1-SNAPSHOT</version>
+    <name>Interface protoc plugin</name>
+    <description>Protoc plugin for generating interface hierarchies for generated java classes</description>
     <dependencies>
         <dependency>
             <groupId>org.apache.commons</groupId>
