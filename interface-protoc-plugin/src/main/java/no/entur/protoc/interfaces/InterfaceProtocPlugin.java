@@ -66,7 +66,7 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 	@Override
 	public List<PluginProtos.CodeGeneratorResponse.File> generateFiles(PluginProtos.CodeGeneratorRequest request) {
 		parseArgs(combineCommandLineArgsAndPluginParam(commandLineArgs, request.getParameter()));
-		context = new InterfaceProtocContext(targetFolder, request,generateJavalite );
+		context = new InterfaceProtocContext(targetFolder, request, generateJavalite);
 
 		List<MessageTypeHandler> messageTypeHandlers = request.getProtoFileList()
 				.stream()
@@ -115,8 +115,7 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 				"generate protoc code generation files to make protoc generate java messages that implement interfaces");
 		options.addOption(implementInterfacesOption);
 
-		Option javaliteOption = new Option("jl", "javalite", false,
-				"generate interfaces for javalite classes");
+		Option javaliteOption = new Option("jl", "javalite", false, "generate interfaces for javalite classes");
 		options.addOption(javaliteOption);
 
 		CommandLineParser parser = new DefaultParser();
@@ -139,6 +138,6 @@ public class InterfaceProtocPlugin extends com.salesforce.jprotoc.Generator {
 		}
 		generateInterfaces = cmd.hasOption(generateInterfacesOption.getOpt());
 		generateAddInterfaceCodeGenerationFiles = cmd.hasOption(implementInterfacesOption.getOpt());
-		generateJavalite=cmd.hasOption(javaliteOption.getOpt());
+		generateJavalite = cmd.hasOption(javaliteOption.getOpt());
 	}
 }

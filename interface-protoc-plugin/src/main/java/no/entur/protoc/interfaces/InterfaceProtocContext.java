@@ -34,11 +34,11 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import xsd.Xsd;
+
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.compiler.PluginProtos;
 import com.salesforce.jprotoc.ProtoTypeMap;
-
-import xsd.Xsd;
 
 public class InterfaceProtocContext {
 	public final boolean generateJavalite;

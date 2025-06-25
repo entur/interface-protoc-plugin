@@ -89,42 +89,46 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>dev.cookiecode</groupId>
+                <groupId>io.github.ascopes</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>${protobuf-maven-plugin.version}</version>
                 <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:${proto.version}:exe:${os.detected.classifier}</protocArtifact>
-                    <protoSourceRoot>${project.resources[0].directory}/proto</protoSourceRoot>
-                    <attachProtoSources>false</attachProtoSources>
+                    <protocVersion>${proto.version}</protocVersion>
+                    <sourceDirectories>
+                        <sourceDirectory>${project.resources[0].directory}/proto</sourceDirectory>
+                    </sourceDirectories>
                 </configuration>
                 <executions>
                     <execution>
                         <id>generate-interfaces</id>
                         <goals>
-                            <goal>compile-custom</goal>
+                            <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <pluginId>generate-interfaces</pluginId>
-                            <pluginArtifact>no.entur:interface-protoc-plugin:${project.version}:exe:${os.detected.classifier}</pluginArtifact>
-                            <pluginParameter>-generate-interfaces -target=${generated.interface.directory}</pluginParameter>
+                            <binaryMavenPlugins>
+                                <binaryMavenPlugin>
+                                    <groupId>no.entur</groupId>
+                                    <artifactId>interface-protoc-plugin</artifactId>
+                                    <version>${project.version}</version>
+                                    <options>-generate-interfaces -target=${generated.interface.directory}</options>
+                                </binaryMavenPlugin>
+                            </binaryMavenPlugins>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>protoc-with-implement-interfaces</id>
+                        <id>compile-with-interfaces</id>
                         <goals>
-                            <goal>compile</goal>
+                            <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <protocPlugins>
-                                <protocPlugin>
-                                    <id>add-interfaces</id>
-                                    <groupId>${groupId}</groupId>
+                            <binaryMavenPlugins>
+                                <binaryMavenPlugin>
+                                    <groupId>no.entur</groupId>
                                     <artifactId>interface-protoc-plugin</artifactId>
                                     <version>${project.version}</version>
-                                    <mainClass>no.entur.protoc.interfaces.InterfaceProtocPlugin</mainClass>
-                                    <args>-implement-interfaces</args>
-                                </protocPlugin>
-                            </protocPlugins>
+                                    <options>-implement-interfaces</options>
+                                </binaryMavenPlugin>
+                            </binaryMavenPlugins>
                         </configuration>
                     </execution>
                 </executions>
