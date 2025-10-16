@@ -24,7 +24,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <proto.version>4.29.3</proto.version>
+        <proto.version>4.33.0</proto.version>
         <protobuf-maven-plugin.version>3.4.0</protobuf-maven-plugin.version>
         <spotless.version>1.31.3</spotless.version>
     </properties>
