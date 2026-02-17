@@ -70,7 +70,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <protocVersion>${proto.version}</protocVersion>
+                            <protoc>${proto.version}</protoc>
                             <sourceDirectories>
                                 <sourceDirectory>${project.resources[0].directory}/proto</sourceDirectory>
                             </sourceDirectories>
