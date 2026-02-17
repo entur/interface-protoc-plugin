@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.17.0</version>
+            <version>3.18.0</version>
         </dependency>
         <dependency>
             <groupId>com.squareup</groupId>
@@ -70,7 +70,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <protocVersion>${proto.version}</protocVersion>
+                            <protoc>${proto.version}</protoc>
                             <sourceDirectories>
                                 <sourceDirectory>${project.resources[0].directory}/proto</sourceDirectory>
                             </sourceDirectories>
