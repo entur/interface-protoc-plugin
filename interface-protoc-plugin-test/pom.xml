@@ -93,7 +93,7 @@
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>${protobuf-maven-plugin.version}</version>
                 <configuration>
-                    <protocVersion>${proto.version}</protocVersion>
+                    <protoc>${proto.version}</protoc>
                     <sourceDirectories>
                         <sourceDirectory>${project.resources[0].directory}/proto</sourceDirectory>
                     </sourceDirectories>
@@ -105,14 +105,14 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <binaryMavenPlugins>
-                                <binaryMavenPlugin>
+                            <plugins>
+                                <plugin kind="binary-maven">
                                     <groupId>no.entur</groupId>
                                     <artifactId>interface-protoc-plugin</artifactId>
                                     <version>${project.version}</version>
                                     <options>-generate-interfaces -target=${generated.interface.directory}</options>
-                                </binaryMavenPlugin>
-                            </binaryMavenPlugins>
+                                </plugin>
+                            </plugins>
                         </configuration>
                     </execution>
                     <execution>
@@ -121,14 +121,14 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <binaryMavenPlugins>
-                                <binaryMavenPlugin>
+                            <plugins>
+                                <plugin kind="binary-maven">
                                     <groupId>no.entur</groupId>
                                     <artifactId>interface-protoc-plugin</artifactId>
                                     <version>${project.version}</version>
                                     <options>-implement-interfaces</options>
-                                </binaryMavenPlugin>
-                            </binaryMavenPlugins>
+                                </plugin>
+                            </plugins>
                         </configuration>
                     </execution>
                 </executions>
