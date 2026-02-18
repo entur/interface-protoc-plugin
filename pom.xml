@@ -13,7 +13,7 @@
     <properties>
         <guava.version>33.4.0-jre</guava.version>
         <java.version>17</java.version>
-        <jreleaser-maven-plugin.version>1.18.0</jreleaser-maven-plugin.version>
+        <jreleaser-maven-plugin.version>1.22.0</jreleaser-maven-plugin.version>
         <junit-jupiter.version>5.11.4</junit-jupiter.version>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
