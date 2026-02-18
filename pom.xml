@@ -11,7 +11,7 @@
         <module>interface-protoc-plugin</module>
     </modules>
     <properties>
-        <guava.version>33.4.0-jre</guava.version>
+        <guava.version>33.5.0-jre</guava.version>
         <java.version>17</java.version>
         <jreleaser-maven-plugin.version>1.18.0</jreleaser-maven-plugin.version>
         <junit-jupiter.version>5.11.4</junit-jupiter.version>
