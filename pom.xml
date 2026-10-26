@@ -13,18 +13,18 @@
     <properties>
         <guava.version>33.4.0-jre</guava.version>
         <java.version>17</java.version>
-        <jreleaser-maven-plugin.version>1.18.0</jreleaser-maven-plugin.version>
+        <jreleaser-maven-plugin.version>1.23.0</jreleaser-maven-plugin.version>
         <junit-jupiter.version>5.11.4</junit-jupiter.version>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
-        <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+        <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <proto.version>4.33.0</proto.version>
+        <proto.version>4.34.1</proto.version>
         <protobuf-maven-plugin.version>5.0.0</protobuf-maven-plugin.version>
         <spotless.version>1.31.3</spotless.version>
     </properties>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.18.0</version>
+            <version>3.20.0</version>
         </dependency>
         <dependency>
             <groupId>com.squareup</groupId>
@@ -274,16 +274,14 @@
     </licenses>
     <developers>
         <developer>
-            <name>Arne Seime</name>
-            <email>arne.seime@entur.org</email>
+            <name>Entur</name>
             <organization>Entur</organization>
-            <organizationUrl>http://www.entur.org</organizationUrl>
+            <organizationUrl>https://www.entur.org</organizationUrl>
         </developer>
         <developer>
-            <name>Dainius Figoras</name>
-            <email>dainius.figoras@entur.org</email>
-            <organization>Entur</organization>
-            <organizationUrl>http://www.entur.org</organizationUrl>
+            <name>Waltti</name>
+            <organization>Waltti</organization>
+            <organizationUrl>https://waltti.fi</organizationUrl>
         </developer>
     </developers>
     <scm>
